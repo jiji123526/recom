@@ -37,8 +37,10 @@ async function initDb() {
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+const wrap = fn => (req, res) => fn(req, res).catch(err => { console.error(err); res.status(500).json({ error: 'Server error' }); });
+
 // GET all menus with vote counts
-app.get('/api/menus', async (req, res) => {
+app.get('/api/menus', wrap(async (req, res) => {
   const { rows } = await pool.query(`
     SELECT m.*,
       COALESCE(SUM(v.value), 0) AS score,
@@ -51,10 +53,10 @@ app.get('/api/menus', async (req, res) => {
     ORDER BY score DESC, m.created_at DESC
   `);
   res.json(rows);
-});
+}));
 
 // POST new menu
-app.post('/api/menus', async (req, res) => {
+app.post('/api/menus', wrap(async (req, res) => {
   const { title, restaurant, description, submitted_by } = req.body;
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
   const { rows } = await pool.query(
@@ -62,10 +64,10 @@ app.post('/api/menus', async (req, res) => {
     [title.trim(), restaurant?.trim() || null, description?.trim() || null, submitted_by?.trim() || null]
   );
   res.status(201).json({ ...rows[0], score: 0, vote_count: 0, comment_count: 0 });
-});
+}));
 
 // POST vote (upsert)
-app.post('/api/menus/:id/vote', async (req, res) => {
+app.post('/api/menus/:id/vote', wrap(async (req, res) => {
   const { voter, value } = req.body;
   const menuId = parseInt(req.params.id);
   if (!voter?.trim()) return res.status(400).json({ error: 'Voter name required' });
@@ -86,19 +88,19 @@ app.post('/api/menus/:id/vote', async (req, res) => {
 
   const scoreRes = await pool.query('SELECT COALESCE(SUM(value), 0) AS score FROM votes WHERE menu_id = $1', [menuId]);
   res.json({ score: parseInt(scoreRes.rows[0].score) });
-});
+}));
 
 // GET comments for a menu
-app.get('/api/menus/:id/comments', async (req, res) => {
+app.get('/api/menus/:id/comments', wrap(async (req, res) => {
   const { rows } = await pool.query(
     'SELECT * FROM comments WHERE menu_id = $1 ORDER BY created_at ASC',
     [parseInt(req.params.id)]
   );
   res.json(rows);
-});
+}));
 
 // POST comment
-app.post('/api/menus/:id/comments', async (req, res) => {
+app.post('/api/menus/:id/comments', wrap(async (req, res) => {
   const { author, content, preferences } = req.body;
   const menuId = parseInt(req.params.id);
   if (!content?.trim()) return res.status(400).json({ error: 'Comment content required' });
@@ -107,7 +109,13 @@ app.post('/api/menus/:id/comments', async (req, res) => {
     [menuId, author?.trim() || 'Anonymous', content.trim(), preferences?.trim() || null]
   );
   res.status(201).json(rows[0]);
-});
+}));
+
+initDb().catch(console.error);
 
 const PORT = process.env.PORT || 3000;
-initDb().then(() => app.listen(PORT, () => console.log(`Lunch Vote running on http://localhost:${PORT}`)));
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Lunch Vote running on http://localhost:${PORT}`));
+}
+
+module.exports = app;
