@@ -1,52 +1,45 @@
 const express = require('express');
-const Database = require('better-sqlite3');
+const { Pool } = require('pg');
 const path = require('path');
-const fs = require('fs');
-
-const dbPath = process.env.DB_PATH || 'lunch.db';
-const dbDir = path.dirname(dbPath);
-if (dbDir !== '.' && !fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
 
 const app = express();
-const db = new Database(dbPath);
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS menus (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    restaurant TEXT,
-    description TEXT,
-    submitted_by TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
-
-  CREATE TABLE IF NOT EXISTS votes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    menu_id INTEGER NOT NULL,
-    voter TEXT NOT NULL,
-    value INTEGER NOT NULL CHECK(value IN (1, -1)),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE CASCADE,
-    UNIQUE(menu_id, voter)
-  );
-
-  CREATE TABLE IF NOT EXISTS comments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    menu_id INTEGER NOT NULL,
-    author TEXT NOT NULL,
-    content TEXT NOT NULL,
-    preferences TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE CASCADE
-  );
-`);
+async function initDb() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS menus (
+      id SERIAL PRIMARY KEY,
+      title TEXT NOT NULL,
+      restaurant TEXT,
+      description TEXT,
+      submitted_by TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS votes (
+      id SERIAL PRIMARY KEY,
+      menu_id INTEGER NOT NULL REFERENCES menus(id) ON DELETE CASCADE,
+      voter TEXT NOT NULL,
+      value INTEGER NOT NULL CHECK(value IN (1, -1)),
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(menu_id, voter)
+    );
+    CREATE TABLE IF NOT EXISTS comments (
+      id SERIAL PRIMARY KEY,
+      menu_id INTEGER NOT NULL REFERENCES menus(id) ON DELETE CASCADE,
+      author TEXT NOT NULL,
+      content TEXT NOT NULL,
+      preferences TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `);
+}
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // GET all menus with vote counts
-app.get('/api/menus', (req, res) => {
-  const menus = db.prepare(`
+app.get('/api/menus', async (req, res) => {
+  const { rows } = await pool.query(`
     SELECT m.*,
       COALESCE(SUM(v.value), 0) AS score,
       COUNT(DISTINCT v.id) AS vote_count,
@@ -56,63 +49,65 @@ app.get('/api/menus', (req, res) => {
     LEFT JOIN comments c ON c.menu_id = m.id
     GROUP BY m.id
     ORDER BY score DESC, m.created_at DESC
-  `).all();
-  res.json(menus);
+  `);
+  res.json(rows);
 });
 
 // POST new menu
-app.post('/api/menus', (req, res) => {
+app.post('/api/menus', async (req, res) => {
   const { title, restaurant, description, submitted_by } = req.body;
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
-  const result = db.prepare(
-    'INSERT INTO menus (title, restaurant, description, submitted_by) VALUES (?, ?, ?, ?)'
-  ).run(title.trim(), restaurant?.trim() || null, description?.trim() || null, submitted_by?.trim() || null);
-  const menu = db.prepare('SELECT * FROM menus WHERE id = ?').get(result.lastInsertRowid);
-  res.status(201).json({ ...menu, score: 0, vote_count: 0, comment_count: 0 });
+  const { rows } = await pool.query(
+    'INSERT INTO menus (title, restaurant, description, submitted_by) VALUES ($1, $2, $3, $4) RETURNING *',
+    [title.trim(), restaurant?.trim() || null, description?.trim() || null, submitted_by?.trim() || null]
+  );
+  res.status(201).json({ ...rows[0], score: 0, vote_count: 0, comment_count: 0 });
 });
 
 // POST vote (upsert)
-app.post('/api/menus/:id/vote', (req, res) => {
+app.post('/api/menus/:id/vote', async (req, res) => {
   const { voter, value } = req.body;
   const menuId = parseInt(req.params.id);
   if (!voter?.trim()) return res.status(400).json({ error: 'Voter name required' });
   if (value !== 1) return res.status(400).json({ error: 'Value must be 1' });
 
-  const existing = db.prepare('SELECT * FROM votes WHERE menu_id = ? AND voter = ?').get(menuId, voter);
+  const { rows } = await pool.query('SELECT * FROM votes WHERE menu_id = $1 AND voter = $2', [menuId, voter]);
+  const existing = rows[0];
+
   if (existing) {
     if (existing.value === value) {
-      // Toggle off
-      db.prepare('DELETE FROM votes WHERE id = ?').run(existing.id);
+      await pool.query('DELETE FROM votes WHERE id = $1', [existing.id]);
     } else {
-      db.prepare('UPDATE votes SET value = ? WHERE id = ?').run(value, existing.id);
+      await pool.query('UPDATE votes SET value = $1 WHERE id = $2', [value, existing.id]);
     }
   } else {
-    db.prepare('INSERT INTO votes (menu_id, voter, value) VALUES (?, ?, ?)').run(menuId, voter, value);
+    await pool.query('INSERT INTO votes (menu_id, voter, value) VALUES ($1, $2, $3)', [menuId, voter, value]);
   }
 
-  const score = db.prepare('SELECT COALESCE(SUM(value), 0) AS score FROM votes WHERE menu_id = ?').get(menuId).score;
-  res.json({ score });
+  const scoreRes = await pool.query('SELECT COALESCE(SUM(value), 0) AS score FROM votes WHERE menu_id = $1', [menuId]);
+  res.json({ score: parseInt(scoreRes.rows[0].score) });
 });
 
 // GET comments for a menu
-app.get('/api/menus/:id/comments', (req, res) => {
-  const comments = db.prepare(
-    'SELECT * FROM comments WHERE menu_id = ? ORDER BY created_at ASC'
-  ).all(parseInt(req.params.id));
-  res.json(comments);
+app.get('/api/menus/:id/comments', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT * FROM comments WHERE menu_id = $1 ORDER BY created_at ASC',
+    [parseInt(req.params.id)]
+  );
+  res.json(rows);
 });
 
 // POST comment
-app.post('/api/menus/:id/comments', (req, res) => {
+app.post('/api/menus/:id/comments', async (req, res) => {
   const { author, content, preferences } = req.body;
   const menuId = parseInt(req.params.id);
   if (!content?.trim()) return res.status(400).json({ error: 'Comment content required' });
-  const result = db.prepare(
-    'INSERT INTO comments (menu_id, author, content, preferences) VALUES (?, ?, ?, ?)'
-  ).run(menuId, author?.trim() || 'Anonymous', content.trim(), preferences?.trim() || null);
-  const comment = db.prepare('SELECT * FROM comments WHERE id = ?').get(result.lastInsertRowid);
-  res.status(201).json(comment);
+  const { rows } = await pool.query(
+    'INSERT INTO comments (menu_id, author, content, preferences) VALUES ($1, $2, $3, $4) RETURNING *',
+    [menuId, author?.trim() || 'Anonymous', content.trim(), preferences?.trim() || null]
+  );
+  res.status(201).json(rows[0]);
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Lunch Vote running on http://localhost:${PORT}`));
+initDb().then(() => app.listen(PORT, () => console.log(`Lunch Vote running on http://localhost:${PORT}`)));
