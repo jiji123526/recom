@@ -328,7 +328,7 @@
   <div class="submit-card">
     <h2>+ 명대사 후보 추천</h2>
     <div class="form-row">
-      <input id="menu-title" type="text" placeholder="명대사 (지문 가능)" maxlength="120" />
+      <textarea id="menu-title" rows="3" placeholder="명대사 (지문 가능)" maxlength="500"></textarea>
     </div>
     <div class="form-row">
       <input id="menu-restaurant" type="text" placeholder="제목" maxlength="120" />
@@ -413,7 +413,7 @@ function showToast(msg, duration = 2500) {
             <button class="vote-btn up" data-id="${m.id}" data-val="1" title="Upvote">▲ <span id="score-${m.id}">${m.score}</span></button>
           </div>
           <div class="menu-info">
-            <div class="menu-title">${escHtml(m.title)}</div>
+            <div class="menu-title" style="white-space:pre-wrap">${escHtml(m.title)}</div>
             ${m.restaurant ? `<div class="menu-desc" style="font-weight:500;color:var(--primary)">✍️ ${escHtml(m.restaurant)}</div>` : ''}
             ${m.submitted_by ? `<div class="menu-desc"><a href="${escHtml(m.submitted_by)}" target="_blank" rel="noopener noreferrer" style="color:var(--primary);word-break:break-all;">🔗 ${escHtml(m.submitted_by)}</a></div>` : ''}
             ${m.description ? `<div class="menu-desc">${escHtml(m.description)}</div>` : ''}
