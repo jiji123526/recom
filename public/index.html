@@ -366,7 +366,9 @@ function showToast(msg, duration = 2500) {
   }
 
   function getUser() {
-    return 'Anonymous';
+    let id = localStorage.getItem('voter-id');
+    if (!id) { id = Math.random().toString(36).slice(2); localStorage.setItem('voter-id', id); }
+    return id;
   }
 
   function relativeTime(dateStr) {
