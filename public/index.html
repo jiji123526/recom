@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lunch Vote</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #f0f4ff;
+      --surface: #ffffff;
+      --border: #dbeafe;
+      --text: #111827;
+      --muted: #6b7280;
+      --up: #16a34a;
+      --down: #dc2626;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    header h1 { font-size: 1.4rem; font-weight: 700; }
+    header span { font-size: 1.5rem; }
+
+
+    .main { max-width: 860px; margin: 0 auto; padding: 1.5rem; }
+
+    .submit-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .submit-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .form-row input, .form-row textarea {
+      flex: 1;
+      min-width: 200px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .form-row input:focus, .form-row textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn:hover { background: var(--primary-dark); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .sort-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .sort-bar button {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.7rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+
+    .sort-bar button.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .menu-list { display: flex; flex-direction: column; gap: 1rem; }
+
+    .menu-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    .menu-card-body {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      align-items: flex-start;
+    }
+
+    .vote-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      min-width: 44px;
+    }
+
+    .vote-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      white-space: nowrap;
+    }
+
+    .vote-btn.up:hover, .vote-btn.up.active { background: #dcfce7; border-color: var(--up); color: var(--up); }
+
+.menu-info { flex: 1; }
+
+    .menu-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .menu-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .menu-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .toggle-comments {
+      background: none;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.5rem 1.25rem;
+      border-top: 1px solid var(--border);
+      width: 100%;
+      text-align: left;
+      transition: background 0.1s;
+    }
+
+    .toggle-comments:hover { background: #eff6ff; }
+
+    .comments-section {
+      border-top: 1px solid var(--border);
+      background: #fafaf9;
+      padding: 1rem 1.25rem;
+      display: none;
+    }
+
+    .comments-section.open { display: block; }
+
+    .comment-item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .comment-author { font-weight: 600; font-size: 0.85rem; }
+    .comment-time { font-size: 0.75rem; color: var(--muted); }
+    .comment-text { font-size: 0.9rem; margin-bottom: 0.3rem; }
+
+    .comment-pref {
+      display: inline-block;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .add-comment-form { margin-top: 0.75rem; }
+
+    .add-comment-form textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.875rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 64px;
+      margin-bottom: 0.5rem;
+    }
+
+    .add-comment-form textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(249,115,22,0.15);
+    }
+
+    .comment-form-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .comment-form-row input {
+      flex: 1;
+      min-width: 160px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.7rem;
+      font-size: 0.85rem;
+    }
+
+    .comment-form-row input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(249,115,22,0.15);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--muted);
+    }
+
+    .empty-state .icon { font-size: 3rem; margin-bottom: 0.75rem; }
+    .empty-state p { font-size: 1rem; }
+
+    #toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: #111;
+      color: white;
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    #toast.show { opacity: 1; }
+
+    @media (max-width: 500px) {
+      .menu-card-body { flex-direction: row; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span>📚</span>
+  <h1>독서합시다</h1>
+</header>
+
+
+<div class="main">
+  <div class="submit-card">
+    <h2>+ 명대사 후보 추천</h2>
+    <div class="form-row">
+      <input id="menu-title" type="text" placeholder="명대사 (지문 가능)" maxlength="120" />
+    </div>
+    <div class="form-row">
+      <input id="menu-restaurant" type="text" placeholder="제목" maxlength="120" />
+    </div>
+    <div class="form-row">
+      <input id="menu-submitter" type="text" placeholder="링크 (터진거 가능인데 제가 안읽었으면 후보제외됨)" maxlength="80" />
+    </div>
+    <div class="form-row">
+      <textarea id="menu-desc" rows="2" placeholder="이유"></textarea>
+    </div>
+    <button class="btn" id="submit-menu-btn">제출</button>
+  </div>
+
+  <div class="sort-bar">
+    정렬:
+    <button id="sort-top" class="active">개추순</button>
+    <button id="sort-new">최신순</button>
+  </div>
+
+  <div id="menu-list" class="menu-list">
+    <div class="empty-state"><div class="icon">🍽️</div><p>Loading menus…</p></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  let menus = [];
+  let sort = 'top';
+function showToast(msg, duration = 2500) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), duration);
+  }
+
+  function getUser() {
+    return 'Anonymous';
+  }
+
+  function relativeTime(dateStr) {
+    const diff = Date.now() - new Date(dateStr + 'Z').getTime();
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return 'just now';
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    return `${Math.floor(h / 24)}d ago`;
+  }
+
+  async function fetchMenus() {
+    const res = await fetch('/api/menus');
+    menus = await res.json();
+    renderMenus();
+  }
+
+  function sortedMenus() {
+    return [...menus].sort((a, b) => {
+      if (sort === 'top') return b.score - a.score || new Date(b.created_at) - new Date(a.created_at);
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+  }
+
+  function renderMenus() {
+    const list = document.getElementById('menu-list');
+    const sorted = sortedMenus();
+    if (!sorted.length) {
+      list.innerHTML = '<div class="empty-state"><div class="icon">🥺</div><p>추천이 없습니다... 하나 하고 가세요</p></div>';
+      return;
+    }
+    list.innerHTML = sorted.map(m => menuCard(m)).join('');
+    sorted.forEach(m => attachMenuHandlers(m.id));
+  }
+
+  function menuCard(m) {
+    return `
+      <div class="menu-card" id="card-${m.id}">
+        <div class="menu-card-body">
+          <div class="vote-column">
+            <button class="vote-btn up" data-id="${m.id}" data-val="1" title="Upvote">▲ <span id="score-${m.id}">${m.score}</span></button>
+          </div>
+          <div class="menu-info">
+            <div class="menu-title">${escHtml(m.title)}</div>
+            ${m.restaurant ? `<div class="menu-desc" style="font-weight:500;color:var(--primary)">✍️ ${escHtml(m.restaurant)}</div>` : ''}
+            ${m.submitted_by ? `<div class="menu-desc"><a href="${escHtml(m.submitted_by)}" target="_blank" rel="noopener noreferrer" style="color:var(--primary);word-break:break-all;">🔗 ${escHtml(m.submitted_by)}</a></div>` : ''}
+            ${m.description ? `<div class="menu-desc">${escHtml(m.description)}</div>` : ''}
+          </div>
+        </div>
+        <button class="toggle-comments" data-id="${m.id}">
+          💬 댓글 ${m.comment_count}개 — 클릭해서 댓글 보기
+        </button>
+        <div class="comments-section" id="comments-${m.id}">
+          <div id="comment-list-${m.id}">Loading…</div>
+          <div class="add-comment-form">
+            <textarea id="comment-text-${m.id}" placeholder="…"></textarea>
+            <div class="comment-form-row">
+<button class="btn" onclick="submitComment(${m.id})">Add Comment</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function attachMenuHandlers(id) {
+    document.querySelector(`.vote-btn[data-id="${id}"]`).addEventListener('click', () => vote(id, 1));
+    document.querySelector(`.toggle-comments[data-id="${id}"]`).addEventListener('click', () => toggleComments(id));
+  }
+
+  async function vote(menuId, value) {
+    const res = await fetch(`/api/menus/${menuId}/vote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ voter: getUser(), value })
+    });
+    if (!res.ok) { showToast('Vote failed.'); return; }
+    const { score } = await res.json();
+    document.getElementById(`score-${menuId}`).textContent = score;
+    const menu = menus.find(m => m.id === menuId);
+    if (menu) menu.score = score;
+  }
+
+  async function toggleComments(menuId) {
+    const section = document.getElementById(`comments-${menuId}`);
+    const open = section.classList.toggle('open');
+    if (open) await loadComments(menuId);
+  }
+
+  async function loadComments(menuId) {
+    const res = await fetch(`/api/menus/${menuId}/comments`);
+    const comments = await res.json();
+    const listEl = document.getElementById(`comment-list-${menuId}`);
+    if (!comments.length) {
+      listEl.innerHTML = '<p style="color:var(--muted);font-size:.85rem;margin-bottom:.5rem;">개추하실분 개추하세요</p>';
+      return;
+    }
+    listEl.innerHTML = comments.map(c => `
+      <div class="comment-item">
+        <div class="comment-header">
+          <span class="comment-time">${relativeTime(c.created_at)}</span>
+        </div>
+        <div class="comment-text">${escHtml(c.content)}</div>
+        ${c.preferences ? `<span class="comment-pref">🥗 ${escHtml(c.preferences)}</span>` : ''}
+      </div>
+    `).join('');
+  }
+
+  async function submitComment(menuId) {
+    const contentEl = document.getElementById(`comment-text-${menuId}`);
+    const content = contentEl.value.trim();
+    if (!content) { showToast('Please write a comment first.'); return; }
+
+    const res = await fetch(`/api/menus/${menuId}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ author: getUser(), content })
+    });
+
+    if (!res.ok) { showToast('Failed to post comment.'); return; }
+
+    contentEl.value = '';
+    showToast('Comment posted!');
+    await loadComments(menuId);
+
+    const menu = menus.find(m => m.id === menuId);
+    if (menu) {
+      menu.comment_count = (menu.comment_count || 0) + 1;
+      const btn = document.querySelector(`.toggle-comments[data-id="${menuId}"]`);
+      if (btn) btn.textContent = `💬 댓글${menu.comment_count}개${menu.comment_count !== 1 ? 's' : ''} — 클릭해서 댓글 보기`;
+    }
+  }
+
+  document.getElementById('submit-menu-btn').addEventListener('click', async () => {
+    const title = document.getElementById('menu-title').value.trim();
+    const restaurant = document.getElementById('menu-restaurant').value.trim();
+    const submitter = document.getElementById('menu-submitter').value.trim();
+    const desc = document.getElementById('menu-desc').value.trim();
+    if (!title) { showToast('Menu name is required.'); return; }
+
+    const res = await fetch('/api/menus', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, restaurant, description: desc, submitted_by: submitter || '' })
+    });
+
+    if (!res.ok) { showToast('추천 실패'); return; }
+    const menu = await res.json();
+    menus.unshift(menu);
+    document.getElementById('menu-title').value = '';
+    document.getElementById('menu-restaurant').value = '';
+    document.getElementById('menu-submitter').value = '';
+    document.getElementById('menu-desc').value = '';
+    showToast('추천 완! >.<');
+    renderMenus();
+  });
+
+  document.getElementById('sort-top').addEventListener('click', () => {
+    sort = 'top';
+    document.getElementById('sort-top').classList.add('active');
+    document.getElementById('sort-new').classList.remove('active');
+    renderMenus();
+  });
+
+  document.getElementById('sort-new').addEventListener('click', () => {
+    sort = 'new';
+    document.getElementById('sort-new').classList.add('active');
+    document.getElementById('sort-top').classList.remove('active');
+    renderMenus();
+  });
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  fetchMenus();
+</script>
+
+</body>
+</html>
