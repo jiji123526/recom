@@ -387,6 +387,17 @@ function showToast(msg, duration = 2500) {
     renderMenus();
   }
 
+  async function refreshScores() {
+    const res = await fetch('/api/menus');
+    const updated = await res.json();
+    updated.forEach(u => {
+      const existing = menus.find(m => m.id === u.id);
+      if (existing) existing.score = u.score;
+      const el = document.getElementById(`score-${u.id}`);
+      if (el) el.textContent = u.score;
+    });
+  }
+
   function sortedMenus() {
     return [...menus].sort((a, b) => {
       if (sort === 'top') return b.score - a.score || new Date(b.created_at) - new Date(a.created_at);
@@ -546,6 +557,7 @@ function showToast(msg, duration = 2500) {
   }
 
   fetchMenus();
+  setInterval(refreshScores, 10000);
 </script>
 
 </body>
