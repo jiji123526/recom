@@ -4,59 +4,68 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ㅊㅊㅂㅌ</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --bg: #f0f4ff;
+      --primary: #3478FF;
+      --primary-dark: #1A66FF;
+      --bg: #ffffff;
       --surface: #ffffff;
-      --border: #dbeafe;
-      --text: #111827;
-      --muted: #6b7280;
-      --up: #16a34a;
-      --down: #dc2626;
+      --border: rgba(118,118,127,0.15);
+      --text: #141415;
+      --muted: #76767F;
+      --up: #01B76C;
+      --down: #F33D4D;
       --radius: 12px;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      font-size: 16px;
+      line-height: 1.5;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     header {
-      background: var(--primary);
-      color: white;
-      padding: 1rem 1.5rem;
+      background: var(--surface);
+      color: var(--text);
+      padding: 0 16px;
+      height: 56px;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      justify-content: center;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    header h1 { font-size: 1.4rem; font-weight: 700; }
+    header h1 { font-size: 20px; font-weight: 600; line-height: 1.33; letter-spacing: -0.025em; text-decoration: none; }
     header span { font-size: 1.5rem; }
 
 
-    .main { max-width: 860px; margin: 0 auto; padding: 1.5rem; }
+    .main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
 
     .submit-card {
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.25rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 0;
+      margin-bottom: 0;
     }
 
     .submit-card h2 {
-      font-size: 1rem;
+      font-size: 16px;
       font-weight: 600;
       margin-bottom: 1rem;
-      color: var(--primary);
+      color: var(--text);
+      line-height: 1.33;
     }
 
     .form-row {
@@ -69,168 +78,200 @@
     .form-row input, .form-row textarea {
       flex: 1;
       min-width: 200px;
-      border: 1px solid var(--border);
+      border: none;
+      background: #F2F2F3;
       border-radius: 8px;
       padding: 0.6rem 0.8rem;
-      font-size: 0.9rem;
+      font-size: 16px;
       font-family: inherit;
       resize: vertical;
+      line-height: 1.5;
     }
 
     .form-row input:focus, .form-row textarea:focus {
       outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+      box-shadow: inset 0 0 0 1px var(--primary);
     }
 
     .btn {
-      background: var(--primary);
+      background: var(--text);
       color: white;
       border: none;
       border-radius: 8px;
       padding: 0.6rem 1.2rem;
-      font-size: 0.9rem;
+      font-size: 14px;
       font-weight: 600;
+      font-family: inherit;
+      line-height: 1.33;
       cursor: pointer;
       transition: background 0.15s;
     }
 
-    .btn:hover { background: var(--primary-dark); }
+    .btn:hover { background: #000; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .sort-bar {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      font-size: 0.85rem;
-      color: var(--muted);
+      gap: 20px;
+      height: 44px;
+      border-bottom: 1px solid var(--border);
+      padding: 0;
+      margin-bottom: 0;
     }
 
     .sort-bar button {
       background: none;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.3rem 0.7rem;
+      border: none;
+      padding: 0 4px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 16px;
+      font-family: inherit;
       color: var(--muted);
+      font-weight: 400;
+      height: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.15s;
+      white-space: nowrap;
     }
 
     .sort-bar button.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
+      color: var(--text);
+      font-weight: 600;
     }
 
-    .menu-list { display: flex; flex-direction: column; gap: 1rem; }
+    .sort-bar button.active::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--text);
+    }
+
+    .menu-list { display: flex; flex-direction: column; }
 
     .menu-card {
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      border-bottom: 1px solid var(--border);
       overflow: hidden;
     }
 
     .menu-card-body {
       display: flex;
-      gap: 1rem;
-      padding: 1rem 1.25rem;
-      align-items: flex-start;
+      flex-direction: column;
+      gap: 12px;
+      padding: 24px 0 20px;
     }
 
-    .vote-column {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.25rem;
-      min-width: 44px;
-    }
+    .post-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px; }
+    .post-header-left { display: flex; align-items: center; gap: 8px; }
+    .post-avatar { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+    .post-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .post-header-info { display: flex; flex-direction: column; }
+    .post-nickname { font-size: 15px; font-weight: 600; line-height: 1.33; color: var(--text); }
+    .post-meta-line { font-size: 13px; color: var(--muted); line-height: 1.33; }
+    .post-more-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 20px; padding: 4px 8px; border-radius: 8px; }
+    .post-more-btn:hover { background: rgba(118,118,127,0.08); }
+
+    .post-content { display: flex; flex-direction: column; gap: 6px; padding: 0; }
+    .post-title { font-size: 18px; font-weight: 600; line-height: 1.33; color: var(--text); margin: 0; letter-spacing: -0.025em; }
+    @media (min-width: 744px) { .post-title { font-size: 20px; } }
+    .post-body { font-size: 16px; line-height: 1.5; color: #141415; margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; font-weight: 400; }
+
+    .post-actions { display: flex; justify-content: space-between; align-items: center; padding-top: 4px; }
+    .post-comment-bubble { display: flex; align-items: flex-start; gap: 8px; background: #F2F2F3; border-radius: 8px; padding: 12px; cursor: pointer; }
+    .post-comment-avatar { width: 24px; height: 24px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+    .post-comment-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .post-comment-text { font-size: 14px; line-height: 1.5; color: #76767F; margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    .post-actions-left { display: flex; align-items: center; gap: 2px; }
+    .post-actions-right { display: flex; align-items: center; gap: 2px; }
+    .post-icon-btn { background: none; border: none; cursor: pointer; color: var(--muted); padding: 6px; border-radius: 8px; display: flex; align-items: center; }
+    .post-icon-btn:hover { background: rgba(118,118,127,0.08); }
 
     .vote-btn {
       background: none;
-      border: 1px solid var(--border);
+      border: none;
       border-radius: 6px;
-      padding: 0.35rem 0.7rem;
-      font-size: 0.9rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s;
       display: flex;
       align-items: center;
-      gap: 0.3rem;
+      gap: 0.375rem;
       white-space: nowrap;
-    }
-
-    .vote-btn.up:hover, .vote-btn.up.active { background: #dcfce7; border-color: var(--up); color: var(--up); }
-
-.menu-info { flex: 1; }
-
-    .menu-title {
-      font-size: 1.05rem;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-
-    .menu-desc {
-      font-size: 0.9rem;
       color: var(--muted);
-      margin-bottom: 0.4rem;
+      min-height: 32px;
     }
 
-    .menu-meta {
-      font-size: 0.78rem;
-      color: var(--muted);
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
+    .vote-btn.up:hover, .vote-btn.up.active { background: rgba(118,118,127,0.08); color: var(--text); }
 
     .toggle-comments {
       background: none;
       border: none;
-      color: var(--primary);
+      color: var(--muted);
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 14px;
       font-weight: 600;
-      padding: 0.5rem 1.25rem;
-      border-top: 1px solid var(--border);
-      width: 100%;
+      padding: 0.25rem 0.5rem;
+      width: auto;
       text-align: left;
-      transition: background 0.1s;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      min-height: 32px;
+      border-radius: 6px;
     }
 
-    .toggle-comments:hover { background: #eff6ff; }
+    .toggle-comments:hover { background: rgba(118,118,127,0.08); color: var(--text); }
 
     .comments-section {
       border-top: 1px solid var(--border);
-      background: #fafaf9;
-      padding: 1rem 1.25rem;
+      padding: 16px 0 0;
+      margin-top: 4px;
       display: none;
     }
 
     .comments-section.open { display: block; }
 
     .comment-item {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem;
-      margin-bottom: 0.6rem;
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
+      padding: 12px 0;
+      margin-bottom: 0;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
     }
+    .comment-item:last-child { border-bottom: none; }
+
+    .comment-avatar { width: 32px; height: 32px; border-radius: 50%; background: #F2F2F3; flex-shrink: 0; }
+
+    .comment-body { flex: 1; min-width: 0; }
 
     .comment-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.4rem;
+      gap: 6px;
+      margin-bottom: 4px;
     }
+    .comment-nickname { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.33; }
+    .comment-time { font-size: 12px; color: var(--muted); }
 
-    .comment-author { font-weight: 600; font-size: 0.85rem; }
-    .comment-time { font-size: 0.75rem; color: var(--muted); }
-    .comment-text { font-size: 0.9rem; margin-bottom: 0.3rem; }
+    .comment-text { font-size: 15px; margin: 0; line-height: 1.5; color: var(--text); }
+
+    .comment-footer { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+    .comment-footer button { background: none; border: none; padding: 0; font: inherit; font-size: 13px; color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .comment-footer button:hover { color: var(--text); }
 
     .comment-pref {
       display: inline-block;
@@ -241,26 +282,27 @@
       padding: 0.15rem 0.5rem;
       font-size: 0.75rem;
       font-weight: 500;
+      margin-top: 4px;
     }
 
-    .add-comment-form { margin-top: 0.75rem; }
+    .add-comment-form { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
 
     .add-comment-form textarea {
       width: 100%;
       border: 1px solid var(--border);
+      background: var(--surface);
       border-radius: 8px;
-      padding: 0.6rem 0.8rem;
-      font-size: 0.875rem;
+      padding: 10px 12px;
+      font-size: 14px;
       font-family: inherit;
       resize: vertical;
-      min-height: 64px;
+      min-height: 60px;
       margin-bottom: 0.5rem;
     }
 
     .add-comment-form textarea:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(249,115,22,0.15);
     }
 
     .comment-form-row {
@@ -273,7 +315,8 @@
     .comment-form-row input {
       flex: 1;
       min-width: 160px;
-      border: 1px solid var(--border);
+      border: none;
+      background: #F2F2F3;
       border-radius: 8px;
       padding: 0.5rem 0.7rem;
       font-size: 0.85rem;
@@ -281,8 +324,7 @@
 
     .comment-form-row input:focus {
       outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(249,115,22,0.15);
+      box-shadow: inset 0 0 0 1px var(--primary);
     }
 
     .empty-state {
@@ -311,8 +353,17 @@
 
     #toast.show { opacity: 1; }
 
-    @media (max-width: 500px) {
-      .menu-card-body { flex-direction: row; }
+    @media (max-width: 743px) {
+      .main { padding: 0 16px; }
+      .menu-card-body { padding: 20px 0 16px; gap: 10px; }
+      .post-header { padding-bottom: 4px; }
+      .post-title { font-size: 18px; }
+      .post-body { -webkit-line-clamp: 3; }
+      .post-nickname { font-size: 14px; }
+      .post-meta-line { font-size: 12px; }
+      .submit-card { padding: 16px 0; }
+      .submit-card h2 { font-size: 15px; }
+      .sort-bar { padding-inline: 0; }
     }
   </style>
 </head>
@@ -343,7 +394,6 @@
   </div>
 
   <div class="sort-bar">
-    정렬:
     <button id="sort-top" class="active">개추순</button>
     <button id="sort-new">최신순</button>
   </div>
@@ -420,19 +470,32 @@ function showToast(msg, duration = 2500) {
     return `
       <div class="menu-card" id="card-${m.id}">
         <div class="menu-card-body">
-          <div class="vote-column">
-            <button class="vote-btn up" data-id="${m.id}" data-val="1" title="Upvote">▲ <span id="score-${m.id}">${m.score}</span></button>
+          <div class="post-header">
+            <div class="post-header-left">
+              <div class="post-avatar"><img src="https://d33pksfia2a94m.cloudfront.net/assets/img/avatar/avatar_blank.png" alt="" width="32" height="32"></div>
+              <div class="post-header-info">
+                <span class="post-nickname">${m.submitted_by ? '익명' : '익명'}</span>
+                <span class="post-meta-line">${relativeTime(m.created_at)} · 독서합시다</span>
+              </div>
+            </div>
+            <button class="post-more-btn">⋯</button>
           </div>
-          <div class="menu-info">
-            <div class="menu-title" style="white-space:pre-wrap">${escHtml(m.title)}</div>
-            ${m.restaurant ? `<div class="menu-desc" style="font-weight:500;color:var(--primary)">✍️ ${escHtml(m.restaurant)}</div>` : ''}
-            ${m.submitted_by ? `<div class="menu-desc"><a href="${escHtml(m.submitted_by)}" target="_blank" rel="noopener noreferrer" style="color:var(--primary);word-break:break-all;">🔗 ${escHtml(m.submitted_by)}</a></div>` : ''}
-            ${m.description ? `<div class="menu-desc">${escHtml(m.description)}</div>` : ''}
+          <div class="post-content">
+            ${m.restaurant ? `<h2 class="post-title">${m.submitted_by ? `<a href="${escHtml(m.submitted_by)}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">${escHtml(m.restaurant)}</a>` : escHtml(m.restaurant)}</h2>` : ''}
+            <p class="post-body" style="white-space:pre-wrap">${escHtml(m.title)}</p>
           </div>
+          <div class="post-actions">
+            <div class="post-actions-left">
+              <button class="vote-btn up" data-id="${m.id}" data-val="1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="m10.82 20.116-.097-.09-6.844-6.355A5.882 5.882 0 0 1 2 9.359v-.13C2 6.48 3.953 4.12 6.656 3.606A5.71 5.71 0 0 1 12 5.417a5.562 5.562 0 0 1 .977-.871 5.73 5.73 0 0 1 4.367-.945A5.73 5.73 0 0 1 22 9.23v.129c0 1.636-.68 3.199-1.879 4.312l-6.844 6.355-.097.09c-.32.297-.742.465-1.18.465a1.72 1.72 0 0 1-1.18-.465Z" fill="currentColor"/></svg><span id="score-${m.id}">${m.score}</span></button>
+              <button class="toggle-comments" data-id="${m.id}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6.832 17.535a1.877 1.877 0 0 1 1.742-.25c1.035.375 2.194.59 3.428.59 4.87 0 8.123-3.145 8.123-6.25s-3.253-6.25-8.123-6.25c-4.87 0-8.122 3.145-8.122 6.25 0 1.25.484 2.453 1.394 3.484.336.38.5.88.46 1.387a6.92 6.92 0 0 1-.44 1.93 9.811 9.811 0 0 0 1.538-.887v-.004Z" fill="currentColor"/></svg>${m.comment_count}</button>
+            </div>
+            <div class="post-actions-right">
+              <button class="post-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.5 4.875C4.5 3.84 5.34 3 6.375 3v16.242l5.082-3.629a.93.93 0 0 1 1.09 0l5.078 3.63V4.874H6.375V3h11.25c1.035 0 1.875.84 1.875 1.875v16.188a.938.938 0 0 1-1.48.762L12 17.526l-6.02 4.297a.938.938 0 0 1-1.48-.762z" fill="currentColor"/></svg></button>
+              <button class="post-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12.664 2.275a.934.934 0 0 0-1.324 0l-5.004 5A.937.937 0 0 0 7.66 8.6l3.399-3.398v9.614c0 .519.418.937.937.937.52 0 .938-.418.938-.938V5.202L16.332 8.6a.937.937 0 0 0 1.324-1.324l-4.992-5ZM5.125 15.44a.935.935 0 0 0-.938-.938.935.935 0 0 0-.937.938v3.124a3.438 3.438 0 0 0 3.438 3.438h10.625a3.438 3.438 0 0 0 3.437-3.438V15.44a.935.935 0 0 0-.938-.938.935.935 0 0 0-.937.938v3.124c0 .864-.7 1.563-1.563 1.563H6.688c-.863 0-1.562-.7-1.562-1.563V15.44Z" fill="currentColor"/></svg></button>
+            </div>
+          </div>
+          ${m.description ? `<div class="post-comment-bubble" onclick="toggleComments(${m.id})"><div class="post-comment-avatar"><img src="https://d33pksfia2a94m.cloudfront.net/assets/img/avatar/avatar_blank.png" width="24" height="24" alt=""></div><p class="post-comment-text">${escHtml(m.description)}</p></div>` : ''}
         </div>
-        <button class="toggle-comments" data-id="${m.id}">
-          💬 댓글 ${m.comment_count}개 — 클릭해서 댓글 보기
-        </button>
         <div class="comments-section" id="comments-${m.id}">
           <div id="comment-list-${m.id}">Loading…</div>
           <div class="add-comment-form">
@@ -471,8 +534,13 @@ function showToast(msg, duration = 2500) {
   }
 
   async function loadComments(menuId) {
-    const res = await fetch(`/api/menus/${menuId}/comments`);
-    const comments = await res.json();
+    let comments;
+    try {
+      const res = await fetch(`/api/menus/${menuId}/comments`);
+      comments = await res.json();
+    } catch(e) {
+      comments = [];
+    }
     const listEl = document.getElementById(`comment-list-${menuId}`);
     if (!comments.length) {
       listEl.innerHTML = '<p style="color:var(--muted);font-size:.85rem;margin-bottom:.5rem;">개추하실분 개추하세요</p>';
@@ -480,11 +548,16 @@ function showToast(msg, duration = 2500) {
     }
     listEl.innerHTML = comments.map(c => `
       <div class="comment-item">
-        <div class="comment-header">
-          <span class="comment-time">${relativeTime(c.created_at)}</span>
+        <img class="comment-avatar" src="https://d33pksfia2a94m.cloudfront.net/assets/img/avatar/avatar_blank.png" alt="">
+        <div class="comment-body">
+          <div class="comment-header">
+            <span class="comment-nickname">익명</span>
+            <span class="comment-time">${relativeTime(c.created_at)}</span>
+          </div>
+          <div class="comment-text">${escHtml(c.content)}</div>
+          ${c.preferences ? `<span class="comment-pref">🥗 ${escHtml(c.preferences)}</span>` : ''}
+
         </div>
-        <div class="comment-text">${escHtml(c.content)}</div>
-        ${c.preferences ? `<span class="comment-pref">🥗 ${escHtml(c.preferences)}</span>` : ''}
       </div>
     `).join('');
   }
@@ -519,7 +592,7 @@ function showToast(msg, duration = 2500) {
     const restaurant = document.getElementById('menu-restaurant').value.trim();
     const submitter = document.getElementById('menu-submitter').value.trim();
     const desc = document.getElementById('menu-desc').value.trim();
-    if (!title) { showToast('Menu name is required.'); return; }
+    if (!title) { showToast('명대사를 적어주세요.'); return; }
 
     const res = await fetch('/api/menus', {
       method: 'POST',
