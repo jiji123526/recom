@@ -421,7 +421,7 @@ function showToast(msg, duration = 2500) {
   }
 
   function relativeTime(dateStr) {
-    const diff = Date.now() - new Date(dateStr + 'Z').getTime();
+    const diff = Date.now() - new Date(dateStr).getTime();
     const m = Math.floor(diff / 60000);
     if (m < 1) return 'just now';
     if (m < 60) return `${m}m ago`;
