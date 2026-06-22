@@ -217,7 +217,7 @@
     }
 
     .vote-btn.up:hover, .vote-btn.up.active { background: rgba(118,118,127,0.08); }
-    .vote-btn.up.active svg { color: #F33D4D; }
+    .vote-btn.up.active svg { color: #F33D4D; fill: #F33D4D; }
 
     .toggle-comments {
       background: none;
@@ -655,7 +655,11 @@ function showToast(msg, duration = 2500) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  fetchMenus();
+  fetchMenus().then(()=>{
+    fetch(`/api/votes/${encodeURIComponent(getUser())}`).then(r=>r.json()).then(ids=>{
+      ids.forEach(id=>{const btn=document.querySelector(`.vote-btn[data-id="${id}"]`);if(btn)btn.classList.add('active');});
+    }).catch(()=>{});
+  });
   setInterval(refreshScores, 10000);
 </script>
 
