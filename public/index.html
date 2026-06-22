@@ -40,7 +40,7 @@
       height: 56px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
@@ -51,7 +51,7 @@
     header span { font-size: 1.5rem; }
 
     .header-left { display: flex; align-items: center; gap: 8px; flex-shrink: 0; font-weight: 700; }
-    .header-search { flex: 1; max-width: 480px; margin: 0 auto; display: flex; align-items: center; gap: 8px; background: #F2F2F3; border-radius: 8px; padding: 0 12px; height: 40px; }
+    .header-search { flex: 1; max-width: 480px; margin: 0 auto; display: flex; align-items: center; gap: 8px; background: #F2F2F3; border-radius: 8px; padding: 0 12px; height: 40px; cursor: text; }
     .header-search svg { flex-shrink: 0; color: #76767F; }
     .header-search input { border: none; background: none; outline: none; font: inherit; font-size: 15px; flex: 1; min-width: 0; color: var(--text); }
     .header-search input::placeholder { color: #76767F; opacity: 1; }
@@ -62,7 +62,6 @@
 
     .submit-card {
       background: var(--surface);
-      border-bottom: 1px solid var(--border);
       padding: 1.25rem 0;
       margin-bottom: 0;
     }
@@ -382,7 +381,6 @@
 
 <header>
   <div class="header-left"><h1>ZZIKSTYPE</h1></div>
-  <div class="header-search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M16.375 10.125a6.25 6.25 0 1 0-12.5 0 6.25 6.25 0 0 0 12.5 0Zm-1.207 6.371a8.086 8.086 0 0 1-5.043 1.754A8.124 8.124 0 0 1 2 10.125 8.124 8.124 0 0 1 10.125 2a8.124 8.124 0 0 1 8.125 8.125c0 1.906-.656 3.66-1.754 5.043l5.23 5.23a.937.937 0 0 1-1.324 1.324l-5.234-5.226Z" fill="currentcolor"/></svg><input type="search" placeholder="검색어를 입력하세요." id="header-search-input"></div>
 </header>
 
 
@@ -652,16 +650,6 @@ function showToast(msg, duration = 2500) {
 
   fetchMenus();
   setInterval(refreshScores, 10000);
-
-  document.getElementById('header-search-input').addEventListener('input', function(e) {
-    const q = e.target.value.toLowerCase().trim();
-    document.querySelectorAll('.menu-card-body').forEach(card => {
-      const m = menus.find(x => x.id == card.dataset.menuId);
-      if (!m) return;
-      const text = ((m.title || '') + ' ' + (m.restaurant || '')).toLowerCase();
-      card.style.display = (!q || text.includes(q)) ? '' : 'none';
-    });
-  });
 </script>
 
 </body>
