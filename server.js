@@ -13,6 +13,7 @@ async function initDb() {
       restaurant TEXT,
       description TEXT,
       submitted_by TEXT,
+      author TEXT,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
     CREATE TABLE IF NOT EXISTS votes (
@@ -57,13 +58,19 @@ app.get('/api/menus', wrap(async (req, res) => {
 
 // POST new menu
 app.post('/api/menus', wrap(async (req, res) => {
-  const { title, restaurant, description, submitted_by } = req.body;
+  const { title, restaurant, description, submitted_by, author } = req.body;
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
   const { rows } = await pool.query(
-    'INSERT INTO menus (title, restaurant, description, submitted_by) VALUES ($1, $2, $3, $4) RETURNING *',
-    [title.trim(), restaurant?.trim() || null, description?.trim() || null, submitted_by?.trim() || null]
+    'INSERT INTO menus (title, restaurant, description, submitted_by, author) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    [title.trim(), restaurant?.trim() || null, description?.trim() || null, submitted_by?.trim() || null, author?.trim() || null]
   );
   res.status(201).json({ ...rows[0], score: 0, vote_count: 0, comment_count: 0 });
+}));
+
+// GET user's votes
+app.get('/api/votes/:voter', wrap(async (req, res) => {
+  const { rows } = await pool.query('SELECT menu_id FROM votes WHERE voter = $1', [req.params.voter]);
+  res.json(rows.map(r => r.menu_id));
 }));
 
 // POST vote (upsert)
