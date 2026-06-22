@@ -216,7 +216,8 @@
       min-height: 32px;
     }
 
-    .vote-btn.up:hover, .vote-btn.up.active { background: rgba(118,118,127,0.08); color: var(--text); }
+    .vote-btn.up:hover, .vote-btn.up.active { background: rgba(118,118,127,0.08); }
+    .vote-btn.up.active svg { color: #F33D4D; }
 
     .toggle-comments {
       background: none;
@@ -545,6 +546,7 @@ function showToast(msg, duration = 2500) {
     if (!res.ok) { showToast('Vote failed.'); return; }
     const { score } = await res.json();
     document.getElementById(`score-${menuId}`).textContent = score;
+    document.querySelector(`.vote-btn[data-id="${menuId}"]`).classList.toggle('active');
     const menu = menus.find(m => m.id === menuId);
     if (menu) menu.score = score;
   }
