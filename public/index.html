@@ -666,16 +666,18 @@ function showToast(msg, duration = 2500) {
   }
 
   fetchMenus().then(()=>{
-    const filled = "m10.82 20.116-.097-.09-6.844-6.355A5.882 5.882 0 0 1 2 9.359v-.13C2 6.48 3.953 4.12 6.656 3.606A5.71 5.71 0 0 1 12 5.417a5.562 5.562 0 0 1 .977-.871 5.73 5.73 0 0 1 4.367-.945A5.73 5.73 0 0 1 22 9.23v.129c0 1.636-.68 3.199-1.879 4.312l-6.844 6.355-.097.09c-.32.297-.742.465-1.18.465a1.72 1.72 0 0 1-1.18-.465Z";
-    function markVoted(ids) {
-      ids.forEach(id=>{const btn=document.querySelector(`.vote-btn[data-id="${id}"]`);if(btn){btn.classList.add('active');btn.querySelector('path').setAttribute('d',filled);}});
-    }
-    fetch(`/api/votes/${encodeURIComponent(getUser())}`).then(r=>r.json()).then(ids=>{
-      localStorage.setItem('voted-ids', JSON.stringify(ids));
-      markVoted(ids);
-    }).catch(()=>{
-      markVoted(JSON.parse(localStorage.getItem('voted-ids') || '[]'));
-    });
+    setTimeout(()=>{
+      const filled = "m10.82 20.116-.097-.09-6.844-6.355A5.882 5.882 0 0 1 2 9.359v-.13C2 6.48 3.953 4.12 6.656 3.606A5.71 5.71 0 0 1 12 5.417a5.562 5.562 0 0 1 .977-.871 5.73 5.73 0 0 1 4.367-.945A5.73 5.73 0 0 1 22 9.23v.129c0 1.636-.68 3.199-1.879 4.312l-6.844 6.355-.097.09c-.32.297-.742.465-1.18.465a1.72 1.72 0 0 1-1.18-.465Z";
+      function markVoted(ids) {
+        ids.forEach(id=>{const btn=document.querySelector('.vote-btn[data-id="'+id+'"]');if(btn){btn.classList.add('active');btn.querySelector('path').setAttribute('d',filled);}});
+      }
+      fetch(`/api/votes/${encodeURIComponent(getUser())}`).then(r=>r.json()).then(ids=>{
+        localStorage.setItem('voted-ids', JSON.stringify(ids));
+        markVoted(ids);
+      }).catch(()=>{
+        markVoted(JSON.parse(localStorage.getItem('voted-ids') || '[]'));
+      });
+    }, 100);
   });
   setInterval(refreshScores, 10000);
 </script>
