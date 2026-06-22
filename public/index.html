@@ -672,9 +672,11 @@ function showToast(msg, duration = 2500) {
         ids.forEach(id=>{const btn=document.querySelector('.vote-btn[data-id="'+id+'"]');if(btn){btn.classList.add('active');btn.querySelector('path').setAttribute('d',filled);}});
       }
       fetch(`/api/votes/${encodeURIComponent(getUser())}`).then(r=>r.json()).then(ids=>{
+        document.title = 'Votes:'+JSON.stringify(ids);
         localStorage.setItem('voted-ids', JSON.stringify(ids));
         markVoted(ids);
-      }).catch(()=>{
+      }).catch(e=>{
+        document.title = 'Error:'+e.message;
         markVoted(JSON.parse(localStorage.getItem('voted-ids') || '[]'));
       });
     }, 100);
