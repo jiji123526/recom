@@ -394,6 +394,9 @@
       <input id="menu-restaurant" type="text" placeholder="제목" maxlength="120" />
     </div>
     <div class="form-row">
+      <input id="menu-author" type="text" placeholder="작가" maxlength="80" />
+    </div>
+    <div class="form-row">
       <input id="menu-submitter" type="text" placeholder="링크 (터진거 가능인데 제가 안읽었으면 후보제외됨)" maxlength="80" />
     </div>
     <div class="form-row">
@@ -446,10 +449,10 @@ function showToast(msg, duration = 2500) {
       menus = await res.json();
     } catch(e) {
       menus = [
-        { id: 1, title: "세상은 네가 생각하는 것보다 훨씬 넓고, 너는 네가 생각하는 것보다 훨씬 대단해.", restaurant: "나미야 잡화점의 기적", submitted_by: "https://example.com", description: "힘들 때 위로가 되는 문장", score: 7, comment_count: 2, created_at: new Date().toISOString() },
-        { id: 2, title: "우리는 모두 자신의 힘으로 발견한 것만 이해할 수 있다.", restaurant: "데미안", submitted_by: "", description: "자기 성찰에 대한 명언", score: 4, comment_count: 0, created_at: new Date(Date.now()-3600000).toISOString() },
-        { id: 3, title: "사막이 아름다운 것은 어딘가에 우물을 숨기고 있기 때문이야.", restaurant: "어린 왕자", submitted_by: "https://example.com/prince", description: "숨겨진 가치에 대해", score: 12, comment_count: 5, created_at: new Date(Date.now()-7200000).toISOString() },
-        { id: 4, title: "인생이란 자전거를 타는 것과 같다. 균형을 잡으려면 움직여야 한다.", restaurant: "아인슈타인 어록", submitted_by: "", description: "행동의 중요성", score: 9, comment_count: 1, created_at: new Date(Date.now()-86400000).toISOString() }
+        { id: 1, title: "세상은 네가 생각하는 것보다 훨씬 넓고, 너는 네가 생각하는 것보다 훨씬 대단해.", restaurant: "나미야 잡화점의 기적", author: "히가시노 게이고", submitted_by: "https://example.com", description: "힘들 때 위로가 되는 문장", score: 7, comment_count: 2, created_at: new Date().toISOString() },
+        { id: 2, title: "우리는 모두 자신의 힘으로 발견한 것만 이해할 수 있다.", restaurant: "데미안", author: "헤르만 헤세", submitted_by: "", description: "자기 성찰에 대한 명언", score: 4, comment_count: 0, created_at: new Date(Date.now()-3600000).toISOString() },
+        { id: 3, title: "사막이 아름다운 것은 어딘가에 우물을 숨기고 있기 때문이야.", restaurant: "어린 왕자", author: "생텍쥐페리", submitted_by: "https://example.com/prince", description: "숨겨진 가치에 대해", score: 12, comment_count: 5, created_at: new Date(Date.now()-7200000).toISOString() },
+        { id: 4, title: "인생이란 자전거를 타는 것과 같다. 균형을 잡으려면 움직여야 한다.", restaurant: "아인슈타인 어록", author: "알버트 아인슈타인", submitted_by: "", description: "행동의 중요성", score: 9, comment_count: 1, created_at: new Date(Date.now()-86400000).toISOString() }
       ];
     }
     renderMenus();
@@ -492,7 +495,7 @@ function showToast(msg, duration = 2500) {
             <div class="post-header-left">
               <div class="post-avatar"><img src="https://d33pksfia2a94m.cloudfront.net/assets/img/avatar/avatar_blank.png" alt="" width="32" height="32"></div>
               <div class="post-header-info">
-                <span class="post-nickname">${m.submitted_by ? '익명' : '익명'}</span>
+                <span class="">${m.author ? escHtml(m.author) : '익명'}</span>
                 <span class="post-meta-line">${relativeTime(m.created_at)} · 독서합시다</span>
               </div>
             </div>
@@ -609,6 +612,7 @@ function showToast(msg, duration = 2500) {
   document.getElementById('submit-menu-btn').addEventListener('click', async () => {
     const title = document.getElementById('menu-title').value.trim();
     const restaurant = document.getElementById('menu-restaurant').value.trim();
+    const author = document.getElementById('menu-author').value.trim();
     const submitter = document.getElementById('menu-submitter').value.trim();
     const desc = document.getElementById('menu-desc').value.trim();
     if (!title) { showToast('명대사를 적어주세요.'); return; }
@@ -616,7 +620,7 @@ function showToast(msg, duration = 2500) {
     const res = await fetch('/api/menus', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, restaurant, description: desc, submitted_by: submitter || '' })
+      body: JSON.stringify({ title, restaurant, description: desc, submitted_by: submitter || '', author: author || '' })
     });
 
     if (!res.ok) { showToast('추천 실패'); return; }
@@ -624,6 +628,7 @@ function showToast(msg, duration = 2500) {
     menus.unshift(menu);
     document.getElementById('menu-title').value = '';
     document.getElementById('menu-restaurant').value = '';
+    document.getElementById('menu-author').value = '';
     document.getElementById('menu-submitter').value = '';
     document.getElementById('menu-desc').value = '';
     showToast('추천 완! >.<');
