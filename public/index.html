@@ -285,25 +285,30 @@
       margin-top: 4px;
     }
 
-    .add-comment-form { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .add-comment-form { margin-top: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
+
+    .add-comment-form .comment-input-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .add-comment-form .comment-input-header img { width: 28px; height: 28px; border-radius: 50%; }
+    .add-comment-form .comment-input-header span { font-size: 14px; font-weight: 600; color: var(--text); }
 
     .add-comment-form textarea {
       width: 100%;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 14px;
+      border: none;
+      background: none;
+      padding: 0;
+      font-size: 15px;
       font-family: inherit;
-      resize: vertical;
-      min-height: 60px;
-      margin-bottom: 0.5rem;
+      resize: none;
+      min-height: 24px;
+      line-height: 1.5;
+      color: var(--text);
     }
 
-    .add-comment-form textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
+    .add-comment-form textarea::placeholder { color: var(--muted); }
+    .add-comment-form textarea:focus { outline: none; }
+
+    .add-comment-form .comment-form-row { display: flex; justify-content: flex-end; margin-top: 8px; }
+    .add-comment-form .comment-form-row .btn { font-size: 13px; padding: 6px 12px; }
 
     .comment-form-row {
       display: flex;
@@ -431,8 +436,12 @@ function showToast(msg, duration = 2500) {
   }
 
   async function fetchMenus() {
-    const res = await fetch('/api/menus');
-    menus = await res.json();
+    try {
+      const res = await fetch('/api/menus');
+      menus = await res.json();
+    } catch(e) {
+      menus = [{ id: 1, title: "세상은 네가 생각하는 것보다 훨씬 넓고, 너는 네가 생각하는 것보다 훨씬 대단해.", restaurant: "나미야 잡화점의 기적", submitted_by: "https://example.com", description: "힘들 때 위로가 되는 문장", score: 7, comment_count: 2, created_at: new Date().toISOString() }];
+    }
     renderMenus();
   }
 
@@ -498,9 +507,10 @@ function showToast(msg, duration = 2500) {
         <div class="comments-section" id="comments-${m.id}">
           <div id="comment-list-${m.id}">Loading…</div>
           <div class="add-comment-form">
-            <textarea id="comment-text-${m.id}" placeholder="…"></textarea>
+            <div class="comment-input-header"><img src="https://d33pksfia2a94m.cloudfront.net/assets/img/avatar/avatar_blank.png" alt=""><span>익명</span></div>
+            <textarea id="comment-text-${m.id}" placeholder="개추하실분 개추하세요" rows="1"></textarea>
             <div class="comment-form-row">
-<button class="btn" onclick="submitComment(${m.id})">댓글 쓰기</button>
+<button class="btn" onclick="submitComment(${m.id})">등록</button>
             </div>
           </div>
         </div>
@@ -542,7 +552,7 @@ function showToast(msg, duration = 2500) {
     }
     const listEl = document.getElementById(`comment-list-${menuId}`);
     if (!comments.length) {
-      listEl.innerHTML = '<p style="color:var(--muted);font-size:.85rem;margin-bottom:.5rem;">개추하실분 개추하세요</p>';
+      listEl.innerHTML = '';
       return;
     }
     listEl.innerHTML = comments.map(c => `
