@@ -50,6 +50,13 @@
     header h1 { font-size: 20px; font-weight: 600; line-height: 1.33; letter-spacing: -0.025em; text-decoration: none; }
     header span { font-size: 1.5rem; }
 
+    .header-left { display: flex; align-items: center; gap: 8px; flex-shrink: 0; font-weight: 700; }
+    .header-search { flex: 1; max-width: 480px; margin: 0 auto; display: flex; align-items: center; gap: 8px; background: #F2F2F3; border-radius: 8px; padding: 0 12px; height: 40px; }
+    .header-search svg { flex-shrink: 0; color: #76767F; }
+    .header-search input { border: none; background: none; outline: none; font: inherit; font-size: 15px; flex: 1; min-width: 0; color: var(--text); }
+    .header-search input::placeholder { color: #76767F; opacity: 1; }
+    @media (max-width: 743px) { .header-search { max-width: none; } }
+
 
     .main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
 
@@ -374,8 +381,8 @@
 <body>
 
 <header>
-  <span>📚</span>
-  <h1>독서합시다</h1>
+  <div class="header-left"><h1>ZZIKSTYPE</h1></div>
+  <div class="header-search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M16.375 10.125a6.25 6.25 0 1 0-12.5 0 6.25 6.25 0 0 0 12.5 0Zm-1.207 6.371a8.086 8.086 0 0 1-5.043 1.754A8.124 8.124 0 0 1 2 10.125 8.124 8.124 0 0 1 10.125 2a8.124 8.124 0 0 1 8.125 8.125c0 1.906-.656 3.66-1.754 5.043l5.23 5.23a.937.937 0 0 1-1.324 1.324l-5.234-5.226Z" fill="currentcolor"/></svg><input type="search" placeholder="검색어를 입력하세요." id="header-search-input"></div>
 </header>
 
 
@@ -440,7 +447,12 @@ function showToast(msg, duration = 2500) {
       const res = await fetch('/api/menus');
       menus = await res.json();
     } catch(e) {
-      menus = [{ id: 1, title: "세상은 네가 생각하는 것보다 훨씬 넓고, 너는 네가 생각하는 것보다 훨씬 대단해.", restaurant: "나미야 잡화점의 기적", submitted_by: "https://example.com", description: "힘들 때 위로가 되는 문장", score: 7, comment_count: 2, created_at: new Date().toISOString() }];
+      menus = [
+        { id: 1, title: "세상은 네가 생각하는 것보다 훨씬 넓고, 너는 네가 생각하는 것보다 훨씬 대단해.", restaurant: "나미야 잡화점의 기적", submitted_by: "https://example.com", description: "힘들 때 위로가 되는 문장", score: 7, comment_count: 2, created_at: new Date().toISOString() },
+        { id: 2, title: "우리는 모두 자신의 힘으로 발견한 것만 이해할 수 있다.", restaurant: "데미안", submitted_by: "", description: "자기 성찰에 대한 명언", score: 4, comment_count: 0, created_at: new Date(Date.now()-3600000).toISOString() },
+        { id: 3, title: "사막이 아름다운 것은 어딘가에 우물을 숨기고 있기 때문이야.", restaurant: "어린 왕자", submitted_by: "https://example.com/prince", description: "숨겨진 가치에 대해", score: 12, comment_count: 5, created_at: new Date(Date.now()-7200000).toISOString() },
+        { id: 4, title: "인생이란 자전거를 타는 것과 같다. 균형을 잡으려면 움직여야 한다.", restaurant: "아인슈타인 어록", submitted_by: "", description: "행동의 중요성", score: 9, comment_count: 1, created_at: new Date(Date.now()-86400000).toISOString() }
+      ];
     }
     renderMenus();
   }
@@ -477,7 +489,7 @@ function showToast(msg, duration = 2500) {
   function menuCard(m) {
     return `
       <div class="menu-card" id="card-${m.id}">
-        <div class="menu-card-body">
+        <div class="menu-card-body" data-menu-id="${m.id}">
           <div class="post-header">
             <div class="post-header-left">
               <div class="post-avatar"><img src="https://d33pksfia2a94m.cloudfront.net/assets/img/avatar/avatar_blank.png" alt="" width="32" height="32"></div>
@@ -640,6 +652,16 @@ function showToast(msg, duration = 2500) {
 
   fetchMenus();
   setInterval(refreshScores, 10000);
+
+  document.getElementById('header-search-input').addEventListener('input', function(e) {
+    const q = e.target.value.toLowerCase().trim();
+    document.querySelectorAll('.menu-card-body').forEach(card => {
+      const m = menus.find(x => x.id == card.dataset.menuId);
+      if (!m) return;
+      const text = ((m.title || '') + ' ' + (m.restaurant || '')).toLowerCase();
+      card.style.display = (!q || text.includes(q)) ? '' : 'none';
+    });
+  });
 </script>
 
 </body>
