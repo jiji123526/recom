@@ -213,7 +213,10 @@
       transition: background-color 0.15s, color 0.15s;
     }
     .post-more-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
-    .post-more-btn:hover { background: rgba(118,118,127,0.08); }
+    .post-more-btn:active { background: rgba(118,118,127,0.08); }
+    @media (hover: hover) and (pointer: fine) {
+      .post-more-btn:hover { background: rgba(118,118,127,0.08); }
+    }
 
     .post-content { display: flex; flex-direction: column; gap: 3px; padding: 0; }
     .post-title {
@@ -263,7 +266,10 @@
       gap: 6px;
       transition: background-color 0.15s, color 0.15s;
     }
-    .post-icon-btn:hover { background: rgba(118,118,127,0.08); color: #141415; }
+    .post-icon-btn:active { background: rgba(118,118,127,0.08); color: #141415; }
+    @media (hover: hover) and (pointer: fine) {
+      .post-icon-btn:hover { background: rgba(118,118,127,0.08); color: #141415; }
+    }
     .post-icon-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
 
     .vote-btn {
@@ -287,7 +293,10 @@
     }
     .vote-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
 
-    .vote-btn.up:hover { background: rgba(118,118,127,0.08); color: #141415; }
+    .vote-btn:active { background: rgba(118,118,127,0.08); color: #141415; }
+    @media (hover: hover) and (pointer: fine) {
+      .vote-btn.up:hover { background: rgba(118,118,127,0.08); color: #141415; }
+    }
     .vote-btn.up.active svg { color: #F33D4D; }
 
     .toggle-comments {
@@ -313,7 +322,10 @@
     }
     .toggle-comments svg { width: 20px; height: 20px; flex-shrink: 0; }
 
-    .toggle-comments:hover { background: rgba(118,118,127,0.08); color: #141415; }
+    .toggle-comments:active { background: rgba(118,118,127,0.08); color: #141415; }
+    @media (hover: hover) and (pointer: fine) {
+      .toggle-comments:hover { background: rgba(118,118,127,0.08); color: #141415; }
+    }
 
     .comments-section {
       border-top: 1px solid var(--border);
