@@ -197,7 +197,21 @@
     }
     .post-nickname { font-size: 15px; font-weight: 600; line-height: 1.33; color: var(--text); }
     .post-meta-line { font-size: 13px; color: var(--muted); line-height: 1.33; }
-    .post-more-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 20px; padding: 4px 8px; border-radius: 8px; }
+    .post-more-btn {
+      min-height: 32px;
+      padding: 4px 8px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #62626A;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: background-color 0.15s, color 0.15s;
+    }
+    .post-more-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
     .post-more-btn:hover { background: rgba(118,118,127,0.08); }
 
     .post-content { display: flex; flex-direction: column; gap: 3px; padding: 0; }
@@ -226,7 +240,10 @@
     .post-comment-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .post-comment-text { font-size: 13px; line-height: 1.5; color: #141415; margin: 0; overflow: visible; display: block; white-space: pre-wrap; }
     .post-actions-left { display: flex; align-items: center; gap: 4px; }
-    .post-actions-right { display: flex; align-items: center; gap: 4px; }
+    .post-actions-right { display: flex; align-items: center; gap: 0; }
+    .post-actions-right .post-icon-btn:last-child {
+      padding-right: 3px;
+    }
     .post-icon-btn {
       min-height: 32px;
       padding: 4px 8px;
@@ -561,7 +578,7 @@ function showToast(msg, duration = 2500) {
                 <span class="post-meta-line">${relativeTime(m.created_at)} · 독서합시다</span>
               </div>
             </div>
-            <button class="post-more-btn">⋯</button>
+            <button class="post-more-btn" aria-label="더보기" type="button"><svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.125 12a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm-6.25 0a1.875 1.875 0 1 1-3.751 0 1.875 1.875 0 0 1 3.751 0ZM5.75 13.875a1.875 1.875 0 1 1 0-3.75 1.875 1.875 0 0 1 0 3.75Z" fill="currentcolor"></path></svg></button>
           </div>
           <div class="post-content">
             ${m.restaurant ? `<h2 class="post-title">${m.submitted_by ? `<a href="${escHtml(m.submitted_by)}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">${escHtml(m.restaurant)}</a>` : escHtml(m.restaurant)}</h2>` : ''}
