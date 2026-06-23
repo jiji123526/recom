@@ -742,18 +742,18 @@ function showToast(msg, duration = 2500) {
     renderMenus();
   });
 
-  document.getElementById('sort-top').addEventListener('click', () => {
+  document.getElementById('sort-top').addEventListener('click', async () => {
     sort = 'top';
     document.getElementById('sort-top').classList.add('active');
     document.getElementById('sort-new').classList.remove('active');
-    renderMenus();
+    await fetchMenus();
   });
 
-  document.getElementById('sort-new').addEventListener('click', () => {
+  document.getElementById('sort-new').addEventListener('click', async () => {
     sort = 'new';
     document.getElementById('sort-new').classList.add('active');
     document.getElementById('sort-top').classList.remove('active');
-    renderMenus();
+    await fetchMenus();
   });
 
   function escHtml(str) {
