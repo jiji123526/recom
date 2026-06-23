@@ -91,7 +91,7 @@
       font-size: 16px;
       font-family: inherit;
       resize: vertical;
-      line-height: 1.5;
+      line-height: 1.33334;
     }
 
     .form-row input:focus, .form-row textarea:focus {
@@ -170,74 +170,132 @@
     .menu-card-body {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
       padding: 24px 0 20px;
     }
 
-    .post-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px; }
+    .post-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0; }
     .post-header-left { display: flex; align-items: center; gap: 8px; }
     .post-avatar { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
     .post-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .post-header-info { display: flex; flex-direction: column; }
+
+    .post-author-badge {
+      margin: 0;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+    @supports not (overflow-wrap: anywhere) {
+      .post-author-badge { word-break: break-word; }
+    }
     .post-nickname { font-size: 15px; font-weight: 600; line-height: 1.33; color: var(--text); }
     .post-meta-line { font-size: 13px; color: var(--muted); line-height: 1.33; }
     .post-more-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 20px; padding: 4px 8px; border-radius: 8px; }
     .post-more-btn:hover { background: rgba(118,118,127,0.08); }
 
-    .post-content { display: flex; flex-direction: column; gap: 6px; padding: 0; }
-    .post-title { font-size: 18px; font-weight: 600; line-height: 1.33; color: var(--text); margin: 0; letter-spacing: -0.025em; }
-    @media (min-width: 744px) { .post-title { font-size: 20px; } }
-    .post-body { font-size: 16px; line-height: 1.5; color: #141415; margin: 0; font-weight: 400; }
-
-    .post-actions { display: flex; justify-content: space-between; align-items: center; padding-top: 4px; }
-    .post-comment-bubble { display: flex; align-items: flex-start; gap: 8px; background: #F2F2F3; border-radius: 8px; padding: 12px; cursor: pointer; }
-    .post-comment-avatar { width: 24px; height: 24px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
-    .post-comment-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .post-comment-text { font-size: 14px; line-height: 1.5; color: #76767F; margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-    .post-actions-left { display: flex; align-items: center; gap: 2px; }
-    .post-actions-right { display: flex; align-items: center; gap: 2px; }
-    .post-icon-btn { background: none; border: none; cursor: pointer; color: var(--muted); padding: 6px; border-radius: 8px; display: flex; align-items: center; }
-    .post-icon-btn:hover { background: rgba(118,118,127,0.08); }
-
-    .vote-btn {
-      background: none;
-      border: none;
-      border-radius: 6px;
-      padding: 0.25rem 0.5rem;
-      font-size: 14px;
+    .post-content { display: flex; flex-direction: column; gap: 3px; padding: 0; }
+    .post-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 16px;
       font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 0.375rem;
-      white-space: nowrap;
-      color: var(--muted);
-      min-height: 32px;
+      line-height: 1.33334;
+      letter-spacing: -0.025em;
+      overflow-wrap: anywhere;
+    }
+    .post-body {
+      font-size: 15px;
+      line-height: 1.65;
+      color: #62626A;
+      margin: 0;
+      font-weight: 400;
+      letter-spacing: -0.025em;
+      overflow-wrap: anywhere;
     }
 
-    .vote-btn.up:hover { background: rgba(118,118,127,0.08); }
+    .post-actions { display: flex; justify-content: space-between; align-items: center; padding-top: 0; margin-top: -5px; }
+    .post-comment-bubble { display: flex; align-items: center; gap: 8px; background: #F9F9FA; border-radius: 8px; padding: 12px; cursor: pointer; }
+    .post-comment-avatar { width: 24px; height: 24px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+    .post-comment-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .post-comment-text { font-size: 13px; line-height: 1.5; color: #141415; margin: 0; overflow: visible; display: block; white-space: pre-wrap; }
+    .post-actions-left { display: flex; align-items: center; gap: 4px; }
+    .post-actions-right { display: flex; align-items: center; gap: 4px; }
+    .post-icon-btn {
+      min-height: 32px;
+      padding: 4px 8px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #62626A;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.33334;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background-color 0.15s, color 0.15s;
+    }
+    .post-icon-btn:hover { background: rgba(118,118,127,0.08); color: #141415; }
+    .post-icon-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    .vote-btn {
+      min-height: 32px;
+      padding: 0 8px 0 0;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #62626A;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.33334;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      white-space: nowrap;
+      transition: background-color 0.15s, color 0.15s;
+    }
+    .vote-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    .vote-btn.up:hover { background: rgba(118,118,127,0.08); color: #141415; }
     .vote-btn.up.active svg { color: #F33D4D; }
 
     .toggle-comments {
-      background: none;
-      border: none;
-      color: var(--muted);
+      min-height: 32px;
+      padding: 0 8px 0 0;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #62626A;
       cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      padding: 0.25rem 0.5rem;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.33334;
       width: auto;
       text-align: left;
-      transition: all 0.15s;
       display: inline-flex;
       align-items: center;
-      gap: 0.375rem;
-      min-height: 32px;
-      border-radius: 6px;
+      justify-content: center;
+      gap: 3px;
+      white-space: nowrap;
+      transition: background-color 0.15s, color 0.15s;
     }
+    .toggle-comments svg { width: 20px; height: 20px; flex-shrink: 0; }
 
-    .toggle-comments:hover { background: rgba(118,118,127,0.08); color: var(--text); }
+    .toggle-comments:hover { background: rgba(118,118,127,0.08); color: #141415; }
 
     .comments-section {
       border-top: 1px solid var(--border);
@@ -367,9 +425,8 @@
 
     @media (max-width: 743px) {
       .main { padding: 0 16px; }
-      .menu-card-body { padding: 20px 0 16px; gap: 10px; }
-      .post-header { padding-bottom: 4px; }
-      .post-title { font-size: 18px; }
+      .menu-card-body { padding: 20px 0 16px; gap: 8px; }
+      .post-header { padding-bottom: 0; }
       .post-nickname { font-size: 14px; }
       .post-meta-line { font-size: 12px; }
       .submit-card { padding: 16px 0; }
@@ -437,11 +494,11 @@ function showToast(msg, duration = 2500) {
   function relativeTime(dateStr) {
     const diff = Date.now() - new Date(dateStr).getTime();
     const m = Math.floor(diff / 60000);
-    if (m < 1) return 'just now';
-    if (m < 60) return `${m}m ago`;
+    if (m < 1) return '방금 전';
+    if (m < 60) return `${m}분 전`;
     const h = Math.floor(m / 60);
-    if (h < 24) return `${h}h ago`;
-    return `${Math.floor(h / 24)}d ago`;
+    if (h < 24) return `${h}시간 전`;
+    return `${Math.floor(h / 24)}일 전`;
   }
 
   async function fetchMenus() {
@@ -450,7 +507,7 @@ function showToast(msg, duration = 2500) {
       menus = await res.json();
     } catch(e) {
       menus = [
-        { id: 1, title: "세상은 네가 생각하는 것보다 훨씬 넓고, 너는 네가 생각하는 것보다 훨씬 대단해.", restaurant: "나미야 잡화점의 기적", author: "히가시노 게이고", submitted_by: "https://example.com", description: "힘들 때 위로가 되는 문장", score: 7, comment_count: 2, created_at: new Date().toISOString() },
+        { id: 1, title: "세상은 네가 생각하는 것보다 훨씬 넓고, 너는 네가 생각하는 것보다 훨씬 대단해.", restaurant: "나미야 잡화점의 기적", author: "히가시노 게이고", submitted_by: "https://example.com", description: " 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 ", score: 7, comment_count: 2, created_at: new Date().toISOString() },
         { id: 2, title: "우리는 모두 자신의 힘으로 발견한 것만 이해할 수 있다.", restaurant: "데미안", author: "헤르만 헤세", submitted_by: "", description: "자기 성찰에 대한 명언", score: 4, comment_count: 0, created_at: new Date(Date.now()-3600000).toISOString() },
         { id: 3, title: "사막이 아름다운 것은 어딘가에 우물을 숨기고 있기 때문이야.", restaurant: "어린 왕자", author: "생텍쥐페리", submitted_by: "https://example.com/prince", description: "숨겨진 가치에 대해", score: 12, comment_count: 5, created_at: new Date(Date.now()-7200000).toISOString() },
         { id: 4, title: "인생이란 자전거를 타는 것과 같다. 균형을 잡으려면 움직여야 한다.", restaurant: "아인슈타인 어록", author: "알버트 아인슈타인", submitted_by: "", description: "행동의 중요성", score: 9, comment_count: 1, created_at: new Date(Date.now()-86400000).toISOString() }
@@ -500,7 +557,7 @@ function showToast(msg, duration = 2500) {
             <div class="post-header-left">
               <div class="post-avatar"><img src="https://d33pksfia2a94m.cloudfront.net/assets/img/avatar/avatar_blank.png" alt="" width="32" height="32"></div>
               <div class="post-header-info">
-                <span class="">${m.author ? escHtml(m.author) : '익명'}</span>
+                <div class="post-author-badge">${m.author ? escHtml(m.author) : '익명'}</div>
                 <span class="post-meta-line">${relativeTime(m.created_at)} · 독서합시다</span>
               </div>
             </div>
@@ -512,8 +569,8 @@ function showToast(msg, duration = 2500) {
           </div>
           <div class="post-actions">
             <div class="post-actions-left">
-              <button class="vote-btn up" data-id="${m.id}" data-val="1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m10.82 20.116-.097-.09-6.844-6.355A5.882 5.882 0 0 1 2 9.359v-.13C2 6.48 3.953 4.12 6.656 3.606A5.71 5.71 0 0 1 12 5.417a5.562 5.562 0 0 1 .977-.871 5.73 5.73 0 0 1 4.367-.945A5.73 5.73 0 0 1 22 9.23v.129c0 1.636-.68 3.199-1.879 4.312l-6.844 6.355-.097.09c-.32.297-.742.465-1.18.465a1.72 1.72 0 0 1-1.18-.465Zm.52-12.625a.205.205 0 0 1-.04-.043l-.695-.78-.003-.005A3.85 3.85 0 0 0 3.875 9.23v.13c0 1.113.465 2.18 1.281 2.937L12 18.651l6.844-6.355a4.012 4.012 0 0 0 1.281-2.937v-.13a3.851 3.851 0 0 0-6.723-2.566l-.004.004-.003.004-.696.781c-.011.016-.027.028-.039.043a.935.935 0 0 1-1.32 0v-.004Z" fill="currentcolor"/></svg><span id="score-${m.id}">${m.score}</span></button>
-              <button class="toggle-comments" data-id="${m.id}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6.832 17.535a1.877 1.877 0 0 1 1.742-.25c1.035.375 2.194.59 3.428.59 4.87 0 8.123-3.145 8.123-6.25s-3.253-6.25-8.123-6.25c-4.87 0-8.122 3.145-8.122 6.25 0 1.25.484 2.453 1.394 3.484.336.38.5.88.46 1.387a6.92 6.92 0 0 1-.44 1.93 9.811 9.811 0 0 0 1.538-.887v-.004Zm-3.999 1.586c.07-.105.137-.21.2-.316.39-.649.76-1.5.835-2.457-1.172-1.332-1.863-2.961-1.863-4.723 0-4.488 4.475-8.125 9.997-8.125C17.526 3.5 22 7.137 22 11.625c0 4.488-4.475 8.125-9.998 8.125-1.448 0-2.823-.25-4.065-.7-.465.34-1.222.805-2.12 1.196a9.564 9.564 0 0 1-1.957.629c-.031.008-.062.012-.094.02-.171.03-.34.058-.515.074-.008 0-.02.004-.027.004-.2.02-.399.03-.598.03a.625.625 0 0 1-.445-1.066 5.606 5.606 0 0 0 .629-.797l.011-.019h.012Z" fill="currentcolor"/></svg>${m.comment_count}</button>
+              <button class="vote-btn up" data-id="${m.id}" data-val="1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="m10.82 20.116-.097-.09-6.844-6.355A5.882 5.882 0 0 1 2 9.359v-.13C2 6.48 3.953 4.12 6.656 3.606A5.71 5.71 0 0 1 12 5.417a5.562 5.562 0 0 1 .977-.871 5.73 5.73 0 0 1 4.367-.945A5.73 5.73 0 0 1 22 9.23v.129c0 1.636-.68 3.199-1.879 4.312l-6.844 6.355-.097.09c-.32.297-.742.465-1.18.465a1.72 1.72 0 0 1-1.18-.465Zm.52-12.625a.205.205 0 0 1-.04-.043l-.695-.78-.003-.005A3.85 3.85 0 0 0 3.875 9.23v.13c0 1.113.465 2.18 1.281 2.937L12 18.651l6.844-6.355a4.012 4.012 0 0 0 1.281-2.937v-.13a3.851 3.851 0 0 0-6.723-2.566l-.004.004-.003.004-.696.781c-.011.016-.027.028-.039.043a.935.935 0 0 1-1.32 0v-.004Z" fill="currentcolor"/></svg><span id="score-${m.id}">${m.score}</span></button>
+              <button class="toggle-comments" data-id="${m.id}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6.832 17.535a1.877 1.877 0 0 1 1.742-.25c1.035.375 2.194.59 3.428.59 4.87 0 8.123-3.145 8.123-6.25s-3.253-6.25-8.123-6.25c-4.87 0-8.122 3.145-8.122 6.25 0 1.25.484 2.453 1.394 3.484.336.38.5.88.46 1.387a6.92 6.92 0 0 1-.44 1.93 9.811 9.811 0 0 0 1.538-.887v-.004Zm-3.999 1.586c.07-.105.137-.21.2-.316.39-.649.76-1.5.835-2.457-1.172-1.332-1.863-2.961-1.863-4.723 0-4.488 4.475-8.125 9.997-8.125C17.526 3.5 22 7.137 22 11.625c0 4.488-4.475 8.125-9.998 8.125-1.448 0-2.823-.25-4.065-.7-.465.34-1.222.805-2.12 1.196a9.564 9.564 0 0 1-1.957.629c-.031.008-.062.012-.094.02-.171.03-.34.058-.515.074-.008 0-.02.004-.027.004-.2.02-.399.03-.598.03a.625.625 0 0 1-.445-1.066 5.606 5.606 0 0 0 .629-.797l.011-.019h.012Z" fill="currentcolor"/></svg>${m.comment_count}</button>
             </div>
             <div class="post-actions-right">
               <button class="post-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.5 4.875C4.5 3.84 5.34 3 6.375 3v16.242l5.082-3.629a.93.93 0 0 1 1.09 0l5.078 3.63V4.874H6.375V3h11.25c1.035 0 1.875.84 1.875 1.875v16.188a.938.938 0 0 1-1.48.762L12 17.526l-6.02 4.297a.938.938 0 0 1-1.48-.762z" fill="currentColor"/></svg></button>
