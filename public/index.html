@@ -222,6 +222,28 @@
       .post-more-btn:hover { background: rgba(118,118,127,0.08); }
     }
 
+    .post-more-wrapper { position: relative; }
+    .post-dropdown { display: none; position: absolute; right: 0; top: 100%; background: #fff; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 50; min-width: 100px; overflow: hidden; }
+    .post-dropdown.show { display: block; }
+    .post-dropdown button { display: block; width: 100%; padding: 7px 16px; border: none; background: none; font: inherit; font-size: 14px; text-align: left; cursor: pointer; color: var(--text); }
+    .post-dropdown button:hover { background: #F2F2F3; }
+    .post-dropdown button:last-child { color: #F33D4D; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: #fff; border-radius: 12px; width: 90%; max-width: 480px; max-height: 85vh; overflow-y: auto; box-shadow: 0 12px 24px rgba(0,0,0,0.12); }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .modal-header h3 { font-size: 18px; font-weight: 600; margin: 0; }
+    .modal-header button { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 20px; padding: 4px; }
+    .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .modal-body label { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 4px; display: block; }
+    .modal-body input, .modal-body textarea { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font: inherit; font-size: 14px; resize: vertical; }
+    .modal-body input:focus, .modal-body textarea:focus { outline: none; border-color: var(--primary); }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--border); }
+    .modal-footer .btn-cancel { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px; font-size: 14px; cursor: pointer; color: var(--text); }
+    .modal-footer .btn-danger { background: #F33D4D; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .modal-footer .btn-confirm { background: #141415; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
     .post-content { display: flex; flex-direction: column; gap: 5px; padding: 0; }
     .post-title {
       margin: 0;
@@ -541,10 +563,10 @@ function showToast(msg, duration = 2500) {
       menus = await res.json();
     } catch(e) {
       menus = [
-        { id: 1, title: "세상은 네가 생각하는 것보다 훨씬 넓고, 너는 네가 생각하는 것보다 훨씬 대단해.", restaurant: "나미야 잡화점의 기적", author: "히가시노 게이고", submitted_by: "https://example.com", description: " 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 힘들 때 위로가 되는 문장 ", score: 7, comment_count: 2, created_at: new Date().toISOString() },
-        { id: 2, title: "우리는 모두 자신의 힘으로 발견한 것만 이해할 수 있다.", restaurant: "데미안", author: "헤르만 헤세", submitted_by: "", description: "자기 성찰에 대한 명언", score: 4, comment_count: 0, created_at: new Date(Date.now()-3600000).toISOString() },
-        { id: 3, title: "사막이 아름다운 것은 어딘가에 우물을 숨기고 있기 때문이야.", restaurant: "어린 왕자", author: "생텍쥐페리", submitted_by: "https://example.com/prince", description: "숨겨진 가치에 대해", score: 12, comment_count: 5, created_at: new Date(Date.now()-7200000).toISOString() },
-        { id: 4, title: "인생이란 자전거를 타는 것과 같다. 균형을 잡으려면 움직여야 한다.", restaurant: "아인슈타인 어록", author: "알버트 아인슈타인", submitted_by: "", description: "행동의 중요성", score: 9, comment_count: 1, created_at: new Date(Date.now()-86400000).toISOString() }
+        { id: 1, title: "세상은 네가 생각하는 것보다 훨씬 넓고, 너는 네가 생각하는 것보다 훨씬 대단해.", restaurant: "나미야 잡화점의 기적", author: "히가시노 게이고", submitted_by: "https://example.com", description: " 힘들 때 위로가 되는 문장", score: 7, comment_count: 2, created_by: getUser(), created_at: new Date().toISOString() },
+        { id: 2, title: "우리는 모두 자신의 힘으로 발견한 것만 이해할 수 있다.", restaurant: "데미안", author: "헤르만 헤세", submitted_by: "", description: "자기 성찰에 대한 명언", score: 4, comment_count: 0, created_by: getUser(), created_at: new Date(Date.now()-3600000).toISOString() },
+        { id: 3, title: "사막이 아름다운 것은 어딘가에 우물을 숨기고 있기 때문이야.", restaurant: "어린 왕자", author: "생텍쥐페리", submitted_by: "https://example.com/prince", description: "숨겨진 가치에 대해", score: 12, comment_count: 5, created_by: "someone_else", created_at: new Date(Date.now()-7200000).toISOString() },
+        { id: 4, title: "인생이란 자전거를 타는 것과 같다. 균형을 잡으려면 움직여야 한다.", restaurant: "아인슈타인 어록", author: "알버트 아인슈타인", submitted_by: "", description: "행동의 중요성", score: 9, comment_count: 1, created_by: "someone_else", created_at: new Date(Date.now()-86400000).toISOString() }
       ];
     }
     renderMenus();
@@ -595,7 +617,13 @@ function showToast(msg, duration = 2500) {
                 <span class="post-meta-line">${relativeTime(m.created_at)} · 독서합시다</span>
               </div>
             </div>
-            <button class="post-more-btn" aria-label="더보기" type="button"><svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.125 12a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm-6.25 0a1.875 1.875 0 1 1-3.751 0 1.875 1.875 0 0 1 3.751 0ZM5.75 13.875a1.875 1.875 0 1 1 0-3.75 1.875 1.875 0 0 1 0 3.75Z" fill="currentcolor"></path></svg></button>
+            <div class="post-more-wrapper">
+              <button class="post-more-btn" aria-label="더보기" type="button" onclick="this.nextElementSibling.classList.toggle('show')"><svg focusable="false" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.125 12a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm-6.25 0a1.875 1.875 0 1 1-3.751 0 1.875 1.875 0 0 1 3.751 0ZM5.75 13.875a1.875 1.875 0 1 1 0-3.75 1.875 1.875 0 0 1 0 3.75Z" fill="currentcolor"></path></svg></button>
+              <div class="post-dropdown" ${m.created_by === getUser() ? '' : 'style="display:none"'}>
+                <button onclick="editPost(${m.id})">수정</button>
+                <button onclick="deletePost(${m.id})">삭제</button>
+              </div>
+            </div>
           </div>
           <div class="post-content">
             ${m.restaurant ? `<h2 class="post-title">${m.submitted_by ? `<a href="${escHtml(m.submitted_by)}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">${escHtml(m.restaurant)}</a>` : escHtml(m.restaurant)}</h2>` : ''}
@@ -727,7 +755,7 @@ function showToast(msg, duration = 2500) {
     const res = await fetch('/api/menus', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, restaurant, description: desc, submitted_by: submitter || '', author: author || '' })
+      body: JSON.stringify({ title, restaurant, description: desc, submitted_by: submitter || '', author: author || '', created_by: getUser() })
     });
 
     if (!res.ok) { showToast('추천 실패'); return; }
@@ -775,7 +803,104 @@ function showToast(msg, duration = 2500) {
     }, 100);
   });
   setInterval(refreshScores, 10000);
+
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.post-more-wrapper')) {
+      document.querySelectorAll('.post-dropdown.show').forEach(d => d.classList.remove('show'));
+    }
+  });
+
+  let editingId = null;
+  let deletingId = null;
+
+  function editPost(menuId) {
+    const m = menus.find(x => x.id === menuId);
+    if (!m) return;
+    document.querySelectorAll('.post-dropdown.show').forEach(d => d.classList.remove('show'));
+    editingId = menuId;
+    document.getElementById('edit-title').value = m.title || '';
+    document.getElementById('edit-restaurant').value = m.restaurant || '';
+    document.getElementById('edit-author').value = m.author || '';
+    document.getElementById('edit-desc').value = m.description || '';
+    document.getElementById('edit-modal').classList.add('show');
+  }
+
+  function closeEditModal() { document.getElementById('edit-modal').classList.remove('show'); editingId = null; }
+
+  async function submitEdit() {
+    if (!editingId) return;
+    const m = menus.find(x => x.id === editingId);
+    const res = await fetch(`/api/menus/${editingId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: document.getElementById('edit-title').value.trim(),
+        restaurant: document.getElementById('edit-restaurant').value.trim(),
+        author: document.getElementById('edit-author').value.trim(),
+        description: document.getElementById('edit-desc').value.trim(),
+        submitted_by: m?.submitted_by || '',
+        created_by: getUser()
+      })
+    });
+    if (!res.ok) { const d = await res.json().catch(()=>({})); showToast(d.error || '수정 실패'); return; }
+    const updated = await res.json();
+    const idx = menus.findIndex(x => x.id === editingId);
+    if (idx !== -1) { menus[idx] = { ...menus[idx], ...updated }; }
+    renderMenus();
+    closeEditModal();
+    showToast('수정되었습니다');
+  }
+
+  function deletePost(menuId) {
+    document.querySelectorAll('.post-dropdown.show').forEach(d => d.classList.remove('show'));
+    deletingId = menuId;
+    document.getElementById('delete-modal').classList.add('show');
+  }
+
+  function closeDeleteModal() { document.getElementById('delete-modal').classList.remove('show'); deletingId = null; }
+
+  async function submitDelete() {
+    if (!deletingId) return;
+    const res = await fetch(`/api/menus/${deletingId}?user=${encodeURIComponent(getUser())}`, { method: 'DELETE' });
+    if (!res.ok) { const d = await res.json().catch(()=>({})); showToast(d.error || '삭제 실패'); return; }
+    menus = menus.filter(m => m.id !== deletingId);
+    renderMenus();
+    closeDeleteModal();
+    showToast('삭제되었습니다');
+  }
 </script>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-box">
+    <div class="modal-header"><h3>게시글 수정</h3><button onclick="closeEditModal()">✕</button></div>
+    <div class="modal-body">
+      <div><label>명대사</label><textarea id="edit-title" rows="3"></textarea></div>
+      <div><label>제목</label><input id="edit-restaurant" type="text"></div>
+      <div><label>저자</label><input id="edit-author" type="text"></div>
+      <div><label>이유</label><textarea id="edit-desc" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeEditModal()">취소</button>
+      <button class="btn-confirm" onclick="submitEdit()">수정하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal-box" style="max-width:360px;">
+    <div class="modal-header"><h3>게시글 삭제</h3><button onclick="closeDeleteModal()">✕</button></div>
+    <div class="modal-body" style="text-align:center;padding:24px 20px;">
+      <p style="margin:0;font-size:15px;color:var(--text);">정말 삭제하시겠습니까?<br><span style="font-size:13px;color:var(--muted);">삭제된 게시글은 복구할 수 없습니다.</span></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeDeleteModal()">취소</button>
+      <button class="btn-danger" onclick="submitDelete()">삭제하기</button>
+    </div>
+  </div>
+</div>
 
 <footer style="text-align:center;padding:24px 16px;font-size:12px;color:#76767F;border-top:1px solid rgba(118,118,127,0.15);margin-top:40px;">© 2026 cxwdxggy All rights reserved.</footer>
 </body>

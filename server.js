@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
@@ -14,6 +15,7 @@ async function initDb() {
       description TEXT,
       submitted_by TEXT,
       author TEXT,
+      created_by TEXT,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
     CREATE TABLE IF NOT EXISTS votes (
@@ -58,13 +60,42 @@ app.get('/api/menus', wrap(async (req, res) => {
 
 // POST new menu
 app.post('/api/menus', wrap(async (req, res) => {
-  const { title, restaurant, description, submitted_by, author } = req.body;
+  const { title, restaurant, description, submitted_by, author, created_by } = req.body;
   if (!title || !title.trim()) return res.status(400).json({ error: 'Title is required' });
   const { rows } = await pool.query(
-    'INSERT INTO menus (title, restaurant, description, submitted_by, author) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-    [title.trim(), restaurant?.trim() || null, description?.trim() || null, submitted_by?.trim() || null, author?.trim() || null]
+    'INSERT INTO menus (title, restaurant, description, submitted_by, author, created_by) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+    [title.trim(), restaurant?.trim() || null, description?.trim() || null, submitted_by?.trim() || null, author?.trim() || null, created_by?.trim() || null]
   );
   res.status(201).json({ ...rows[0], score: 0, vote_count: 0, comment_count: 0 });
+}));
+
+// PUT edit menu (owner only)
+app.put('/api/menus/:id', wrap(async (req, res) => {
+  const menuId = parseInt(req.params.id);
+  const { title, restaurant, description, submitted_by, author, created_by } = req.body;
+  if (!created_by) return res.status(400).json({ error: 'User ID required' });
+  const { rows: existing } = await pool.query('SELECT * FROM menus WHERE id = $1', [menuId]);
+  if (!existing.length) return res.status(404).json({ error: 'Not found' });
+  if (existing[0].created_by !== created_by) return res.status(403).json({ error: 'Not your post' });
+  const { rows } = await pool.query(
+    'UPDATE menus SET title=$1, restaurant=$2, description=$3, submitted_by=$4, author=$5 WHERE id=$6 RETURNING *',
+    [title?.trim() || existing[0].title, restaurant?.trim() || null, description?.trim() || null, submitted_by?.trim() || null, author?.trim() || null, menuId]
+  );
+  res.json(rows[0]);
+}));
+
+// DELETE menu (owner only)
+app.delete('/api/menus/:id', wrap(async (req, res) => {
+  const menuId = parseInt(req.params.id);
+  const created_by = req.query.user;
+  if (!created_by) return res.status(400).json({ error: 'User ID required' });
+  const { rows: existing } = await pool.query('SELECT * FROM menus WHERE id = $1', [menuId]);
+  if (!existing.length) return res.status(404).json({ error: 'Not found' });
+  if (existing[0].created_by !== created_by) return res.status(403).json({ error: 'Not your post' });
+  await pool.query('DELETE FROM menus WHERE id = $1', [menuId]);
+  await pool.query('DELETE FROM votes WHERE menu_id = $1', [menuId]);
+  await pool.query('DELETE FROM comments WHERE menu_id = $1', [menuId]);
+  res.json({ success: true });
 }));
 
 // GET user's votes
