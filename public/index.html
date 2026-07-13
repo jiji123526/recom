@@ -998,6 +998,8 @@ function showToast(msg, duration = 2500) {
     renderMenus();
   });
 
+  let tournamentVisited = false;
+
   function switchTab(tab) {
     document.getElementById('sort-top').classList.toggle('active', tab === 'top');
     document.getElementById('sort-new').classList.toggle('active', tab === 'new');
@@ -1009,7 +1011,11 @@ function showToast(msg, duration = 2500) {
     if (tab === 'tournament') {
       feedView.classList.add('hidden');
       tournamentView.classList.add('active');
-      loadTournamentLeaderboard();
+      // Only load leaderboard on first visit — preserve state on subsequent visits
+      if (!tournamentVisited) {
+        tournamentVisited = true;
+        loadTournamentLeaderboard();
+      }
     } else {
       feedView.classList.remove('hidden');
       tournamentView.classList.remove('active');
