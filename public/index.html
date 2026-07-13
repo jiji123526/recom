@@ -1253,7 +1253,7 @@ function showToast(msg, duration = 2500) {
     }
     const fixedSizes = [8, 16, 32].filter(s => s <= available);
     let buttons = fixedSizes.map(s => `<button onclick="startTournament(${s})">${s}강</button>`).join('');
-    buttons += `<button onclick="startTournament(${available})">전체 (${available}강)</button>`;
+    buttons += `<button onclick="startTournament(${available})">${available}강</button>`;
     select.innerHTML = buttons;
   }
 
