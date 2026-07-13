@@ -1134,7 +1134,7 @@ function showToast(msg, duration = 2500) {
     } catch(e) { rankings = []; }
 
     if (!rankings.length) {
-      list.innerHTML = '<div class="leaderboard-empty"><div class="icon">🏆</div><p>아직 월드컵 기록이 없습니다<br>참여해서 첫 기록을 남겨보세요!</p></div>';
+      list.innerHTML = '<div class="leaderboard-empty"><div class="icon">🏆</div><p>아직 랭킹 기록이 없습니다.<br>참여해서 원하는 작품을 붐업하세요!</p></div>';
       return;
     }
 
@@ -1546,7 +1546,7 @@ function showToast(msg, duration = 2500) {
     const list = document.getElementById('history-list');
 
     if (!history.length) {
-      list.innerHTML = '<div class="leaderboard-empty"><div class="icon">📋</div><p>아직 기록이 없습니다<br>월드컵에 참여해보세요!</p></div>';
+      list.innerHTML = '<div class="leaderboard-empty"><div class="icon">📋</div><p>아직 기록이 없습니다.<br>월드컵에 참여해보세요!</p></div>';
       return;
     }
 
