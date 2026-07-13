@@ -700,7 +700,10 @@
     <div id="tournament-game" style="display:none;">
       <div class="tournament-header">
         <h2 id="game-title">라운드 선택</h2>
-        <button class="tournament-btn" id="tournament-back-btn" style="background:transparent;color:var(--text);border:1px solid var(--border);">돌아가기</button>
+        <div style="display:flex;gap:8px;">
+          <button class="tournament-btn" id="game-ranking-btn" style="background:transparent;color:var(--text);border:1px solid var(--border);">랭킹 보기</button>
+          <button class="tournament-btn" id="tournament-back-btn" style="display:none;">돌아가기</button>
+        </div>
       </div>
       <div id="round-select" class="round-select"></div>
       <div id="match-area"></div>
@@ -1226,8 +1229,28 @@ function showToast(msg, duration = 2500) {
     showTournamentSection('tournament-game');
     document.getElementById('game-title').textContent = '라운드 선택';
     document.getElementById('match-area').innerHTML = '';
+    document.getElementById('tournament-back-btn').style.display = 'none';
     renderRoundSelect();
   });
+
+  document.getElementById('game-ranking-btn').addEventListener('click', () => {
+    if (tournamentState.matches && tournamentState.matches.length > 0) {
+      document.getElementById('leave-game-modal').classList.add('show');
+      return;
+    }
+    showTournamentSection('tournament-leaderboard');
+    loadTournamentLeaderboard();
+  });
+
+  function closeLeaveGameModal() {
+    document.getElementById('leave-game-modal').classList.remove('show');
+  }
+
+  function confirmLeaveGame() {
+    closeLeaveGameModal();
+    showTournamentSection('tournament-leaderboard');
+    loadTournamentLeaderboard();
+  }
 
   document.getElementById('tournament-back-btn').addEventListener('click', () => {
     // If game is in progress and has history, undo last pick
@@ -1254,6 +1277,7 @@ function showToast(msg, duration = 2500) {
     showTournamentSection('tournament-game');
     document.getElementById('game-title').textContent = '라운드 선택';
     document.getElementById('match-area').innerHTML = '';
+    document.getElementById('tournament-back-btn').style.display = 'none';
     renderRoundSelect();
   });
 
@@ -1295,6 +1319,7 @@ function showToast(msg, duration = 2500) {
       matches: [],
     };
     document.getElementById('round-select').innerHTML = '';
+    document.getElementById('tournament-back-btn').style.display = '';
     renderMatch();
   }
 
@@ -1514,7 +1539,7 @@ function showToast(msg, duration = 2500) {
 
         <div class="result-actions">
           <button class="tournament-btn" style="background:transparent;color:var(--text);border:1px solid var(--border);" onclick="showTournamentSection('tournament-leaderboard');loadTournamentLeaderboard();">랭킹 보기</button>
-          <button class="tournament-btn" onclick="showTournamentSection('tournament-game');document.getElementById('game-title').textContent='라운드 선택';document.getElementById('match-area').innerHTML='';renderRoundSelect();">다시하기</button>
+          <button class="tournament-btn" onclick="showTournamentSection('tournament-game');document.getElementById('game-title').textContent='라운드 선택';document.getElementById('match-area').innerHTML='';document.getElementById('tournament-back-btn').style.display='none';renderRoundSelect();">다시하기</button>
         </div>
       </div>
     `;
@@ -1651,6 +1676,20 @@ function showToast(msg, duration = 2500) {
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeDeleteModal()">취소</button>
       <button class="btn-danger" onclick="submitDelete()">삭제하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leave Game Modal -->
+<div class="modal-overlay" id="leave-game-modal">
+  <div class="modal-box" style="max-width:280px;">
+    <div class="modal-header"><h3>랭킹 보기</h3><button onclick="closeLeaveGameModal()">✕</button></div>
+    <div class="modal-body" style="text-align:center;padding:24px 20px;">
+      <p style="margin:0;font-size:15px;color:var(--text);">진행 중인 월드컵이 사라집니다.<br><span style="font-size:13px;color:var(--muted);">랭킹 페이지로 이동하시겠습니까?</span></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeLeaveGameModal()">취소</button>
+      <button class="btn-confirm" onclick="confirmLeaveGame()">이동하기</button>
     </div>
   </div>
 </div>
