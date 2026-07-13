@@ -1,3 +1,4 @@
 node_modules/
 lunch.db
 .env
+server.log
