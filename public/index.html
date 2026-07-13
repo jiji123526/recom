@@ -1286,8 +1286,13 @@ function showToast(msg, duration = 2500) {
     loadTournamentLeaderboard();
   });
 
-  function renderRoundSelect() {
+  async function renderRoundSelect() {
     const select = document.getElementById('round-select');
+    // Refresh menus to get the latest count
+    try {
+      const res = await fetch('/api/menus');
+      menus = await res.json();
+    } catch(e) {}
     const available = menus.length;
     if (available < 8) {
       select.innerHTML = '<p style="color:var(--muted);font-size:14px;">추천이 부족합니다 (최소 8개)</p>';
@@ -1388,7 +1393,9 @@ function showToast(msg, duration = 2500) {
 
     const a = currentRound[matchIndex * 2];
     const b = currentRound[matchIndex * 2 + 1];
-    const roundLabel = getRoundLabel(currentRound.length);
+    // Total participants this round = playing + already advanced (byes or previous winners)
+    const roundTotal = currentRound.length + tournamentState.winners.length;
+    const roundLabel = getRoundLabel(roundTotal);
     const matchNum = matchIndex + 1;
 
     document.getElementById('game-title').textContent = `${roundLabel} ${matchNum}/${totalMatches}`;
