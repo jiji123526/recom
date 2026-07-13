@@ -700,7 +700,7 @@
     <div id="tournament-game" style="display:none;">
       <div class="tournament-header">
         <h2 id="game-title">라운드 선택</h2>
-        <button class="tournament-btn" id="tournament-back-btn" style="background:transparent;color:var(--text);border:1px solid var(--border);">돌아가기</button>
+        <button class="tournament-btn" id="tournament-back-btn" style="background:transparent;color:var(--text);border:1px solid var(--border);padding:8px 10px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59Z" fill="currentColor"/></svg></button>
       </div>
       <div id="round-select" class="round-select"></div>
       <div id="match-area"></div>
@@ -1221,7 +1221,18 @@ function showToast(msg, duration = 2500) {
   });
 
   document.getElementById('tournament-back-btn').addEventListener('click', () => {
-    showTournamentSection('tournament-leaderboard');
+    // If game is in progress and has history, undo last pick
+    if (tournamentState.history && tournamentState.history.length > 0) {
+      const prev = tournamentState.history.pop();
+      tournamentState.currentRound = prev.currentRound;
+      tournamentState.matchIndex = prev.matchIndex;
+      tournamentState.winners = prev.winners;
+      tournamentState.eliminated = prev.eliminated;
+      renderMatch();
+    } else {
+      // No history — go back to leaderboard
+      showTournamentSection('tournament-leaderboard');
+    }
   });
 
   document.getElementById('tournament-history-btn').addEventListener('click', () => {
@@ -1262,6 +1273,8 @@ function showToast(msg, duration = 2500) {
       matchIndex: 0,
       winners: [...byes], // byes auto-advance
       eliminated: [],
+      history: [],
+      matches: [],
     };
     document.getElementById('round-select').innerHTML = '';
     renderMatch();
@@ -1377,23 +1390,23 @@ function showToast(msg, duration = 2500) {
   }
 
   async function pickWinner(winner, loser) {
+    // Save current state for undo
+    tournamentState.history = tournamentState.history || [];
+    tournamentState.history.push({
+      currentRound: [...tournamentState.currentRound],
+      matchIndex: tournamentState.matchIndex,
+      winners: [...tournamentState.winners],
+      eliminated: [...tournamentState.eliminated],
+      matches: [...(tournamentState.matches || [])],
+    });
+
     tournamentState.winners.push(winner);
     tournamentState.eliminated.push(loser);
     tournamentState.matchIndex++;
 
-    // Record match to server
-    try {
-      await fetch('/api/tournament/matches', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          winner_id: winner.id,
-          loser_id: loser.id,
-          player: getUser(),
-          round_size: tournamentState.roundSize,
-        })
-      });
-    } catch(e) { /* continue even if server fails */ }
+    // Store match locally — will be submitted when tournament finishes
+    tournamentState.matches = tournamentState.matches || [];
+    tournamentState.matches.push({ winner_id: winner.id, loser_id: loser.id });
 
     renderMatch();
   }
@@ -1401,6 +1414,17 @@ function showToast(msg, duration = 2500) {
   function finishTournament(winner) {
     // Build final ranking: winner first, then eliminated in reverse order
     const ranking = [winner, ...tournamentState.eliminated.reverse()];
+
+    // Batch submit all matches to server
+    const player = getUser();
+    const roundSize = tournamentState.roundSize;
+    (tournamentState.matches || []).forEach(match => {
+      fetch('/api/tournament/matches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...match, player, round_size: roundSize })
+      }).catch(() => {});
+    });
 
     // Save to localStorage
     const history = JSON.parse(localStorage.getItem('tournament-history') || '[]');
