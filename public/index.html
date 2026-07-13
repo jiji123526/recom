@@ -711,7 +711,10 @@
     <div id="tournament-history" style="display:none;">
       <div class="tournament-header">
         <h2>📋 내 월드컵 기록</h2>
-        <button class="tournament-btn" id="history-back-btn" style="background:transparent;color:var(--text);border:1px solid var(--border);">돌아가기</button>
+        <div style="display:flex;gap:8px;">
+          <button class="tournament-btn" id="history-ranking-btn" style="background:transparent;color:var(--text);border:1px solid var(--border);">랭킹 보기</button>
+          <button class="tournament-btn" id="history-back-btn">참여하기</button>
+        </div>
       </div>
       <div id="history-list"></div>
     </div>
@@ -1241,7 +1244,16 @@ function showToast(msg, duration = 2500) {
   });
 
   document.getElementById('history-back-btn').addEventListener('click', () => {
+    if (menus.length < 8) { showToast('최소 8개의 추천이 필요합니다'); return; }
+    showTournamentSection('tournament-game');
+    document.getElementById('game-title').textContent = '라운드 선택';
+    document.getElementById('match-area').innerHTML = '';
+    renderRoundSelect();
+  });
+
+  document.getElementById('history-ranking-btn').addEventListener('click', () => {
     showTournamentSection('tournament-leaderboard');
+    loadTournamentLeaderboard();
   });
 
   function renderRoundSelect() {
