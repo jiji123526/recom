@@ -34,6 +34,14 @@ async function initDb() {
       preferences TEXT,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
+    CREATE TABLE IF NOT EXISTS tournament_matches (
+      id SERIAL PRIMARY KEY,
+      winner_id INTEGER NOT NULL REFERENCES menus(id) ON DELETE CASCADE,
+      loser_id INTEGER NOT NULL REFERENCES menus(id) ON DELETE CASCADE,
+      player TEXT NOT NULL,
+      round_size INTEGER NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
   `);
 }
 
@@ -93,8 +101,6 @@ app.delete('/api/menus/:id', wrap(async (req, res) => {
   if (!existing.length) return res.status(404).json({ error: 'Not found' });
   if (existing[0].created_by !== created_by) return res.status(403).json({ error: 'Not your post' });
   await pool.query('DELETE FROM menus WHERE id = $1', [menuId]);
-  await pool.query('DELETE FROM votes WHERE menu_id = $1', [menuId]);
-  await pool.query('DELETE FROM comments WHERE menu_id = $1', [menuId]);
   res.json({ success: true });
 }));
 
@@ -147,6 +153,39 @@ app.post('/api/menus/:id/comments', wrap(async (req, res) => {
     [menuId, author?.trim() || 'Anonymous', content.trim(), preferences?.trim() || null]
   );
   res.status(201).json(rows[0]);
+}));
+
+// GET tournament rankings
+app.get('/api/tournament/rankings', wrap(async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT m.*,
+      COALESCE((SELECT SUM(v.value) FROM votes v WHERE v.menu_id = m.id), 0) AS score,
+      (SELECT COUNT(*) FROM comments c WHERE c.menu_id = m.id)::int AS comment_count,
+      COUNT(w.id)::int AS wins,
+      (COUNT(w.id) + COUNT(l.id))::int AS appearances,
+      CASE WHEN (COUNT(w.id) + COUNT(l.id)) > 0
+        THEN ROUND(COUNT(w.id)::numeric / (COUNT(w.id) + COUNT(l.id)) * 100, 1)
+        ELSE 0
+      END AS win_rate
+    FROM menus m
+    LEFT JOIN tournament_matches w ON w.winner_id = m.id
+    LEFT JOIN tournament_matches l ON l.loser_id = m.id
+    GROUP BY m.id
+    HAVING (COUNT(w.id) + COUNT(l.id)) > 0
+    ORDER BY win_rate DESC, wins DESC
+  `);
+  res.json(rows);
+}));
+
+// POST tournament match result
+app.post('/api/tournament/matches', wrap(async (req, res) => {
+  const { winner_id, loser_id, player, round_size } = req.body;
+  if (!winner_id || !loser_id || !player) return res.status(400).json({ error: 'Missing fields' });
+  await pool.query(
+    'INSERT INTO tournament_matches (winner_id, loser_id, player, round_size) VALUES ($1, $2, $3, $4)',
+    [winner_id, loser_id, player, round_size]
+  );
+  res.status(201).json({ success: true });
 }));
 
 initDb().catch(console.error);
