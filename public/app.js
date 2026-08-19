@@ -23,6 +23,8 @@ function showToast(msg, duration = 2500) {
     document.cookie = name + '=' + encodeURIComponent(val) + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
   }
 
+  const MENU_DATE_CUTOFF_MS = 7 * 24 * 60 * 60 * 1000;
+
   function relativeTime(dateStr) {
     const diff = Date.now() - new Date(dateStr).getTime();
     const m = Math.floor(diff / 60000);
@@ -31,6 +33,16 @@ function showToast(msg, duration = 2500) {
     const h = Math.floor(m / 60);
     if (h < 24) return `${h}시간 전`;
     return `${Math.floor(h / 24)}일 전`;
+  }
+
+  function formatMenuDate(dateStr) {
+    const date = new Date(dateStr);
+    if (Number.isNaN(date.getTime())) return '';
+    if (Date.now() - date.getTime() < MENU_DATE_CUTOFF_MS) return relativeTime(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
   }
 
   async function fetchMenus() {
@@ -79,7 +91,7 @@ function showToast(msg, duration = 2500) {
 
   function menuCard(m, opts = {}) {
     const { metaLine, showMenu, idPrefix, stopPropagation } = Object.assign({
-      metaLine: `${relativeTime(m.created_at)} · 독서합시다`,
+      metaLine: `${formatMenuDate(m.created_at)} · 독서합시다`,
       showMenu: true,
       idPrefix: '',
       stopPropagation: false,
@@ -616,7 +628,7 @@ function showToast(msg, duration = 2500) {
               <div class="post-avatar"><img src="https://d33pksfia2a94m.cloudfront.net/assets/img/avatar/avatar_blank.png" alt="" width="32" height="32"></div>
               <div class="post-header-info">
                 <div class="post-author-badge">${m.author ? escHtml(m.author) : '익명'}</div>
-                <span class="post-meta-line">${relativeTime(m.created_at)} · 독서합시다</span>
+                <span class="post-meta-line">${formatMenuDate(m.created_at)} · 독서합시다</span>
               </div>
             </div>
           </div>
