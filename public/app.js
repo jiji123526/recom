@@ -1,5 +1,6 @@
   let menus = [];
   let sort = 'top';
+  const pendingVotes = new Set();
 function showToast(msg, duration = 2500) {
     const el = document.getElementById('toast');
     el.textContent = msg;
@@ -148,10 +149,6 @@ function showToast(msg, duration = 2500) {
   function attachMenuHandlers(id) {
     const card = document.querySelector(`#feed-view #card-${id}`);
     if (!card) return;
-    const voteBtn = card.querySelector(`.vote-btn[data-id="${id}"]`);
-    if (voteBtn) voteBtn.addEventListener('click', () => vote(id, 1));
-    const commentBtn = card.querySelector(`.toggle-comments[data-id="${id}"]`);
-    if (commentBtn) commentBtn.addEventListener('click', (e) => toggleComments(id, e.currentTarget));
     const shareBtn = card.querySelector('.share-btn');
     if (shareBtn) {
       shareBtn.addEventListener('click', () => {
@@ -163,29 +160,35 @@ function showToast(msg, duration = 2500) {
   }
 
   async function vote(menuId, value) {
-    const res = await fetch(`/api/menus/${menuId}/vote`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ voter: getUser(), value })
-    });
-    if (!res.ok) { showToast('Vote failed.'); return; }
-    const { score } = await res.json();
-    // Update ALL instances of this card across all tabs
-    document.querySelectorAll(`[id$="score-${menuId}"]`).forEach(el => el.textContent = score);
-    const isNowVoted = !JSON.parse(localStorage.getItem('voted-ids') || '[]').includes(menuId);
-    const filled = "m10.82 20.116-.097-.09-6.844-6.355A5.882 5.882 0 0 1 2 9.359v-.13C2 6.48 3.953 4.12 6.656 3.606A5.71 5.71 0 0 1 12 5.417a5.562 5.562 0 0 1 .977-.871 5.73 5.73 0 0 1 4.367-.945A5.73 5.73 0 0 1 22 9.23v.129c0 1.636-.68 3.199-1.879 4.312l-6.844 6.355-.097.09c-.32.297-.742.465-1.18.465a1.72 1.72 0 0 1-1.18-.465Z";
-    const outlined = "m10.82 20.116-.097-.09-6.844-6.355A5.882 5.882 0 0 1 2 9.359v-.13C2 6.48 3.953 4.12 6.656 3.606A5.71 5.71 0 0 1 12 5.417a5.562 5.562 0 0 1 .977-.871 5.73 5.73 0 0 1 4.367-.945A5.73 5.73 0 0 1 22 9.23v.129c0 1.636-.68 3.199-1.879 4.312l-6.844 6.355-.097.09c-.32.297-.742.465-1.18.465a1.72 1.72 0 0 1-1.18-.465Zm.52-12.625a.205.205 0 0 1-.04-.043l-.695-.78-.003-.005A3.85 3.85 0 0 0 3.875 9.23v.13c0 1.113.465 2.18 1.281 2.937L12 18.651l6.844-6.355a4.012 4.012 0 0 0 1.281-2.937v-.13a3.851 3.851 0 0 0-6.723-2.566l-.004.004-.003.004-.696.781c-.011.016-.027.028-.039.043a.935.935 0 0 1-1.32 0v-.004Z";
-    document.querySelectorAll(`.vote-btn[data-id="${menuId}"]`).forEach(btn => {
-      if (isNowVoted) btn.classList.add('active'); else btn.classList.remove('active');
-      btn.querySelector('path').setAttribute('d', isNowVoted ? filled : outlined);
-    });
-    // persist vote state locally
-    let voted = JSON.parse(localStorage.getItem('voted-ids') || '[]');
-    if (isNowVoted) { if (!voted.includes(menuId)) voted.push(menuId); }
-    else { voted = voted.filter(x => x !== menuId); }
-    localStorage.setItem('voted-ids', JSON.stringify(voted));
-    const menu = menus.find(m => m.id === menuId);
-    if (menu) menu.score = score;
+    if (pendingVotes.has(menuId)) return;
+    pendingVotes.add(menuId);
+    try {
+      const res = await fetch(`/api/menus/${menuId}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voter: getUser(), value })
+      });
+      if (!res.ok) { showToast('Vote failed.'); return; }
+      const { score } = await res.json();
+      // Update ALL instances of this card across all tabs
+      document.querySelectorAll(`[id$="score-${menuId}"]`).forEach(el => el.textContent = score);
+      const isNowVoted = !JSON.parse(localStorage.getItem('voted-ids') || '[]').includes(menuId);
+      const filled = "m10.82 20.116-.097-.09-6.844-6.355A5.882 5.882 0 0 1 2 9.359v-.13C2 6.48 3.953 4.12 6.656 3.606A5.71 5.71 0 0 1 12 5.417a5.562 5.562 0 0 1 .977-.871 5.73 5.73 0 0 1 4.367-.945A5.73 5.73 0 0 1 22 9.23v.129c0 1.636-.68 3.199-1.879 4.312l-6.844 6.355-.097.09c-.32.297-.742.465-1.18.465a1.72 1.72 0 0 1-1.18-.465Z";
+      const outlined = "m10.82 20.116-.097-.09-6.844-6.355A5.882 5.882 0 0 1 2 9.359v-.13C2 6.48 3.953 4.12 6.656 3.606A5.71 5.71 0 0 1 12 5.417a5.562 5.562 0 0 1 .977-.871 5.73 5.73 0 0 1 4.367-.945A5.73 5.73 0 0 1 22 9.23v.129c0 1.636-.68 3.199-1.879 4.312l-6.844 6.355-.097.09c-.32.297-.742.465-1.18.465a1.72 1.72 0 0 1-1.18-.465Zm.52-12.625a.205.205 0 0 1-.04-.043l-.695-.78-.003-.005A3.85 3.85 0 0 0 3.875 9.23v.13c0 1.113.465 2.18 1.281 2.937L12 18.651l6.844-6.355a4.012 4.012 0 0 0 1.281-2.937v-.13a3.851 3.851 0 0 0-6.723-2.566l-.004.004-.003.004-.696.781c-.011.016-.027.028-.039.043a.935.935 0 0 1-1.32 0v-.004Z";
+      document.querySelectorAll(`.vote-btn[data-id="${menuId}"]`).forEach(btn => {
+        if (isNowVoted) btn.classList.add('active'); else btn.classList.remove('active');
+        btn.querySelector('path').setAttribute('d', isNowVoted ? filled : outlined);
+      });
+      // persist vote state locally
+      let voted = JSON.parse(localStorage.getItem('voted-ids') || '[]');
+      if (isNowVoted) { if (!voted.includes(menuId)) voted.push(menuId); }
+      else { voted = voted.filter(x => x !== menuId); }
+      localStorage.setItem('voted-ids', JSON.stringify(voted));
+      const menu = menus.find(m => m.id === menuId);
+      if (menu) menu.score = score;
+    } finally {
+      pendingVotes.delete(menuId);
+    }
   }
 
   async function toggleComments(menuId, triggerEl) {

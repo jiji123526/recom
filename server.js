@@ -87,15 +87,26 @@ app.get('/api/menus', wrap(async (req, res) => {
     return res.json(cache.menus);
   }
   const { rows } = await pool.query(`
+    WITH menu_scores AS (
+      SELECT menu_id,
+        COALESCE(SUM(value), 0)::int AS score,
+        COUNT(*)::int AS vote_count
+      FROM votes
+      GROUP BY menu_id
+    ),
+    menu_comments AS (
+      SELECT menu_id, COUNT(*)::int AS comment_count
+      FROM comments
+      GROUP BY menu_id
+    )
     SELECT m.id, m.quote AS title, m.book_title AS restaurant, m.description,
       m.link AS submitted_by, m.author, m.created_by, m.created_at,
-      COALESCE(SUM(v.value), 0) AS score,
-      COUNT(DISTINCT v.id) AS vote_count,
-      COUNT(DISTINCT c.id) AS comment_count
+      COALESCE(ms.score, 0) AS score,
+      COALESCE(ms.vote_count, 0) AS vote_count,
+      COALESCE(mc.comment_count, 0) AS comment_count
     FROM menus m
-    LEFT JOIN votes v ON v.menu_id = m.id
-    LEFT JOIN comments c ON c.menu_id = m.id
-    GROUP BY m.id
+    LEFT JOIN menu_scores ms ON ms.menu_id = m.id
+    LEFT JOIN menu_comments mc ON mc.menu_id = m.id
     ORDER BY score DESC, m.created_at DESC
   `);
   cache.menus = rows;
@@ -156,23 +167,34 @@ app.post('/api/menus/:id/vote', wrap(async (req, res) => {
   const menuId = parseInt(req.params.id);
   if (!voter?.trim()) return res.status(400).json({ error: 'Voter name required' });
   if (value !== 1) return res.status(400).json({ error: 'Value must be 1' });
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('SELECT pg_advisory_xact_lock($1, hashtext($2))', [menuId, voter]);
 
-  const { rows } = await pool.query('SELECT * FROM votes WHERE menu_id = $1 AND voter = $2', [menuId, voter]);
-  const existing = rows[0];
+    const { rows } = await client.query('SELECT * FROM votes WHERE menu_id = $1 AND voter = $2', [menuId, voter]);
+    const existing = rows[0];
 
-  if (existing) {
-    if (existing.value === value) {
-      await pool.query('DELETE FROM votes WHERE id = $1', [existing.id]);
+    if (existing) {
+      if (existing.value === value) {
+        await client.query('DELETE FROM votes WHERE id = $1', [existing.id]);
+      } else {
+        await client.query('UPDATE votes SET value = $1 WHERE id = $2', [value, existing.id]);
+      }
     } else {
-      await pool.query('UPDATE votes SET value = $1 WHERE id = $2', [value, existing.id]);
+      await client.query('INSERT INTO votes (menu_id, voter, value) VALUES ($1, $2, $3)', [menuId, voter, value]);
     }
-  } else {
-    await pool.query('INSERT INTO votes (menu_id, voter, value) VALUES ($1, $2, $3)', [menuId, voter, value]);
-  }
 
-  const scoreRes = await pool.query('SELECT COALESCE(SUM(value), 0) AS score FROM votes WHERE menu_id = $1', [menuId]);
-  invalidateMenuCache();
-  res.json({ score: parseInt(scoreRes.rows[0].score) });
+    const scoreRes = await client.query('SELECT COALESCE(SUM(value), 0) AS score FROM votes WHERE menu_id = $1', [menuId]);
+    await client.query('COMMIT');
+    invalidateMenuCache();
+    res.json({ score: parseInt(scoreRes.rows[0].score, 10) });
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    throw err;
+  } finally {
+    client.release();
+  }
 }));
 
 // GET comments for a menu
