@@ -215,7 +215,7 @@ function showToast(msg, duration = 2500) {
         <div class="comment-body">
           <div class="comment-header">
             <span class="comment-nickname">익명</span>
-            <span class="comment-time">${relativeTime(c.created_at)}</span>
+            <span class="comment-time">${formatMenuDate(c.created_at)}</span>
           </div>
           <div class="comment-text">${escHtml(c.content)}</div>
           ${c.preferences ? `<span class="comment-pref">🥗 ${escHtml(c.preferences)}</span>` : ''}
@@ -712,7 +712,7 @@ function showToast(msg, duration = 2500) {
           <div class="comment-body">
             <div class="comment-header">
               <span class="comment-nickname">익명</span>
-              <span class="comment-time">${relativeTime(c.created_at)}</span>
+              <span class="comment-time">${formatMenuDate(c.created_at)}</span>
             </div>
             <div class="comment-text">${escHtml(c.content)}</div>
             ${c.preferences ? `<span class="comment-pref">🥗 ${escHtml(c.preferences)}</span>` : ''}
