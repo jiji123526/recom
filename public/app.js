@@ -291,6 +291,12 @@ function showToast(msg, duration = 2500) {
 
   let tournamentVisited = false;
 
+  function resetScrollPosition() {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }
+
   function switchTab(tab) {
     document.getElementById('sort-top').classList.toggle('active', tab === 'top');
     document.getElementById('sort-new').classList.toggle('active', tab === 'new');
@@ -313,6 +319,7 @@ function showToast(msg, duration = 2500) {
       sort = tab;
       fetchMenus();
     }
+    resetScrollPosition();
   }
 
   document.getElementById('sort-top').addEventListener('click', () => switchTab('top'));
