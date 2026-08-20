@@ -297,6 +297,18 @@ function showToast(msg, duration = 2500) {
     document.body.scrollTop = 0;
   }
 
+  function scrollToContentTop() {
+    const sortBar = document.querySelector('.sort-bar');
+    const pageHeader = document.querySelector('header');
+    if (!sortBar) {
+      resetScrollPosition();
+      return;
+    }
+    const headerHeight = pageHeader ? pageHeader.offsetHeight : 0;
+    const targetTop = sortBar.getBoundingClientRect().top + window.scrollY - headerHeight;
+    window.scrollTo(0, Math.max(0, targetTop));
+  }
+
   function switchTab(tab) {
     document.getElementById('sort-top').classList.toggle('active', tab === 'top');
     document.getElementById('sort-new').classList.toggle('active', tab === 'new');
@@ -319,12 +331,14 @@ function showToast(msg, duration = 2500) {
       sort = tab;
       fetchMenus();
     }
-    resetScrollPosition();
+    scrollToContentTop();
   }
 
   document.getElementById('sort-top').addEventListener('click', () => switchTab('top'));
   document.getElementById('sort-new').addEventListener('click', () => switchTab('new'));
   document.getElementById('sort-tournament').addEventListener('click', () => switchTab('tournament'));
+  const pageHeader = document.querySelector('header');
+  if (pageHeader) pageHeader.addEventListener('click', resetScrollPosition);
 
   function escHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
